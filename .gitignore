@@ -1,1 +1,3 @@
 /target
+ufw.log
+ufw.log.*
