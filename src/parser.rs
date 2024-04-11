@@ -1,5 +1,6 @@
 //! A parser for ufw log file.
 
+use std::collections::HashMap;
 use std::fs;
 
 /// Read file and get content line by line
@@ -39,6 +40,55 @@ pub fn read_lines(path: &str) -> Vec<String> {
 /// Split log record by space, and filter empty element(s).
 pub fn split_by_space(log: &String) -> Vec<&str> {
     log.split(" ").filter(|&x| !x.is_empty()).collect()
+}
+
+/// convert log record string to hashmap
+pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
+    let split_log = split_by_space(log);
+    let mut associative = HashMap::new();
+
+    // add origin record
+    associative.insert("origin", log.to_owned());
+    // handle each fields
+    for (index, value) in split_log.iter().enumerate() {
+        // handle record has equal symbol
+        if value.contains("=") {
+            let key_and_value: Vec<&str> = value.split("=").collect();
+            associative.insert(
+                key_and_value.get(0).unwrap().trim(),
+                key_and_value.get(1).unwrap().to_string()
+            );
+            continue;
+        }
+        // handle head part
+        match index {
+            0 => associative.insert("month", value.to_string()),
+            1 => associative.insert("day", value.to_string()),
+            2 => associative.insert("time", value.to_string()),
+            3 => associative.insert("hostname", value.to_string()),
+            5 => associative.insert("uptime", remove_brackets(value.to_string())),
+            7 => associative.insert("action", remove_brackets(value.to_string())),
+            _ => None,
+        };
+        // handle flag
+        match value.trim() {
+            "SYN" => associative.insert("syn", "1".to_string()),
+            "ACK" => associative.insert("ack", "1".to_string()),
+            "FIN" => associative.insert("fin", "1".to_string()),
+            "RST" => associative.insert("rst", "1".to_string()),
+            "PSH" => associative.insert("psh", "1".to_string()),
+            "CWR" => associative.insert("cwr", "1".to_string()),
+            "ECE" => associative.insert("ece", "1".to_string()),
+            _ => None,
+        };
+    }
+
+    associative
+}
+
+/// Replace brackets `[`, `]` in string
+fn remove_brackets(string: String) -> String {
+    string.replace("[", "").replace("]", "")
 }
 
 /// An ufw log
@@ -123,5 +173,12 @@ mod test {
     fn test_split_has_empty_string() {
         let some_log: String = String::from("Apr  7 20:28:26");
         assert_eq!(split_by_space(&some_log), vec!["Apr", "7", "20:28:26"]);
+    }
+
+    #[test]
+    // test split by space and should filter empty element
+    fn test_remove_brackets() {
+        let string: String = String::from("[UFW LOG]");
+        assert_eq!(remove_brackets(string), String::from("UFW LOG"));
     }
 }
