@@ -36,6 +36,11 @@ pub fn read_lines(path: &str) -> Vec<String> {
     file.unwrap().lines().map(String::from).collect()
 }
 
+/// Split log record by space, and filter empty element(s).
+pub fn split_by_space(log: &String) -> Vec<&str> {
+    log.split(" ").filter(|&x| !x.is_empty()).collect()
+}
+
 /// An ufw log
 ///
 /// Each field mean can see the following site:
@@ -99,4 +104,24 @@ enum UfwAction {
     Deny,
     Audit,
     AuditInvalid, // AUDIT INVALID
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    // test split by space
+    fn test_split() {
+        let some_log: String = String::from("Apr 11 20:28:26");
+        assert_eq!(split_by_space(&some_log), vec!["Apr", "11", "20:28:26"]);
+    }
+
+    #[test]
+    // test split by space and should filter empty element
+    fn test_split_has_empty_string() {
+        let some_log: String = String::from("Apr  7 20:28:26");
+        assert_eq!(split_by_space(&some_log), vec!["Apr", "7", "20:28:26"]);
+    }
 }
