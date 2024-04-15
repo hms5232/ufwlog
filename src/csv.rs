@@ -44,7 +44,15 @@ pub fn convert(
     logs: Vec<HashMap<&str, String>>,
     output_filename: Option<&str>,
 ) -> Result<(), Box<dyn Error>> {
-    let file_path = output_filename.unwrap_or("./ufwlog.csv");
+    // resolve file path and name
+    let file_path;
+    let mut input_filename = output_filename.unwrap_or("./ufwlog.csv").to_string();
+    // append extension if not exists
+    if !input_filename.ends_with(".csv") {
+        input_filename.push_str(".csv");
+    }
+    file_path = input_filename.as_str();
+
     let mut wtr = csv::Writer::from_path(file_path)?;
     wtr.write_record(HEADER).expect("Write failed when try to insert header row.");
 

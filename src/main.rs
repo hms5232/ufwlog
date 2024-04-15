@@ -69,7 +69,7 @@ enum SubCommands {
         #[arg(short, long, value_name = "log_path", default_value = "./ufw.log")]
         log_path: Option<String>,
 
-        /// Specify output filename.
+        /// Specify output path and filename.
         #[arg(
             short,
             long = "output",
