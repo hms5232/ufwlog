@@ -93,18 +93,18 @@ pub fn convert(
         row.push(i.get("SRC").unwrap().to_owned());
         row.push(i.get("DST").unwrap().to_owned());
         row.push(i.get("LEN").unwrap().to_owned());
-        row.push(i.get("TOS").unwrap().to_owned());
-        row.push(i.get("PREC").unwrap().to_owned());
-        row.push(i.get("TTL").unwrap().to_owned());
-        row.push(i.get("ID").unwrap().to_owned());
+        row.push(i.get("TOS").unwrap_or(&"".to_string()).to_owned());
+        row.push(i.get("PREC").unwrap_or(&"".to_string()).to_owned());
+        row.push(i.get("TTL").unwrap_or(&"".to_string()).to_owned());
+        row.push(i.get("ID").unwrap_or(&"".to_string()).to_owned());
         row.push(if i.contains_key("df") {
             "DF".to_string()
         } else {
             "".to_string()
         });
         row.push(i.get("PROTO").unwrap().to_owned());
-        row.push(i.get("SPT").unwrap().to_owned());
-        row.push(i.get("DPT").unwrap().to_owned());
+        row.push(i.get("SPT").unwrap_or(&"".to_string()).to_owned());
+        row.push(i.get("DPT").unwrap_or(&"".to_string()).to_owned());
         row.push(i.get("WINDOW").unwrap_or(&"".to_string()).to_owned());
         row.push(i.get("RES").unwrap_or(&"".to_string()).to_owned());
         row.push(flags.join(" "));

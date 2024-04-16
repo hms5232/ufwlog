@@ -22,15 +22,15 @@ pub struct UfwLog {
     src: String,
     dst: String,
     len: u32,
-    tos: String, // type of service
-    prec: String,
-    ttl: u16,
-    id: u32,
+    tos: Option<String>, // type of service
+    prec: Option<String>,
+    ttl: Option<u16>,
+    id: Option<u32>,
     df: bool, // don't fragment
     proto: String,
-    spt: u16,    // source port
-    dpt: u16,    // detestation port
-    window: u32, // the size of packet the sender is willing to receive
+    spt: Option<u16>,    // source port
+    dpt: Option<u16>,    // detestation port
+    window: Option<u32>, // the size of packet the sender is willing to receive
     res: String,
 
     // control bits / flag
@@ -76,15 +76,15 @@ impl UfwLog {
             src: "".to_string(),
             dst: "".to_string(),
             len: 0,
-            tos: "".to_string(),
-            prec: "".to_string(),
-            ttl: 0,
-            id: 0,
+            tos: None,
+            prec: None,
+            ttl: None,
+            id: None,
             df: false,
             proto: "".to_string(),
-            spt: 0,
-            dpt: 0,
-            window: 0,
+            spt: None,
+            dpt: None,
+            window: None,
             res: "".to_string(),
             syn: false,
             ack: false,
@@ -126,15 +126,15 @@ impl UfwLog {
                 "src" => new.src = value,
                 "dst" => new.dst = value,
                 "len" => new.len = value.parse::<u32>().unwrap(),
-                "tos" => new.tos = value,
-                "prec" => new.prec = value,
-                "ttl" => new.ttl = value.parse::<u16>().unwrap(),
-                "id" => new.id = value.parse::<u32>().unwrap(),
+                "tos" => new.tos = Some(value),
+                "prec" => new.prec = Some(value),
+                "ttl" => new.ttl = Some(value.parse::<u16>().unwrap()),
+                "id" => new.id = Some(value.parse::<u32>().unwrap()),
                 "df" => new.df = if value == "1" { true } else { false },
                 "proto" => new.proto = value,
-                "spt" => new.spt = value.parse::<u16>().unwrap(),
-                "dpt" => new.dpt = value.parse::<u16>().unwrap(),
-                "window" => new.window = value.parse::<u32>().unwrap(),
+                "spt" => new.spt = Some(value.parse::<u16>().unwrap()),
+                "dpt" => new.dpt = Some(value.parse::<u16>().unwrap()),
+                "window" => new.window = Some(value.parse::<u32>().unwrap()),
                 "res" => new.res = value,
                 "syn" => new.syn = if value == "1" { true } else { false },
                 "ack" => new.ack = if value == "1" { true } else { false },
