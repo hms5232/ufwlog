@@ -56,7 +56,12 @@ pub fn convert(
     let mut wtr = csv::Writer::from_path(file_path)?;
     wtr.write_record(HEADER).expect("Write failed when try to insert header row.");
 
+    let mut count:u32 = 0;
     for i in logs {
+        count += 1;
+        print!("Handle {} rows...", count);
+        print!("\r");
+
         let mut row = vec![];
 
         // control bits / flags
