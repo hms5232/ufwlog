@@ -128,6 +128,7 @@ pub fn convert(
 
         wtr.write_record(row).expect("Write csv file occur error");
     }
+    println!(); // avoid output be overridden
 
     Ok(())
 }
