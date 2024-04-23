@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 /// An ufw log
 ///
+/// If the field may not exist in some log level, it will be declared as `Option` type.
+///
 /// Each field mean can see the following site:
 /// https://help.ubuntu.com/community/UFW#Interpreting_Log_Entries
 /// https://unix.stackexchange.com/a/702909
@@ -16,9 +18,9 @@ pub struct UfwLog {
     uptime: String,
     action: String,
 
-    r#in: Option<String>,
-    out: Option<String>,
-    mac: Option<String>,
+    r#in: String,
+    out: String,
+    mac: String,
     src: String,
     dst: String,
     len: u32,
@@ -70,9 +72,9 @@ impl UfwLog {
             hostname: "".to_string(),
             uptime: "".to_string(),
             action: "".to_string(),
-            r#in: None,
-            out: None,
-            mac: None,
+            r#in: "".to_string(),
+            out: "".to_string(),
+            mac: "".to_string(),
             src: "".to_string(),
             dst: "".to_string(),
             len: 0,
@@ -120,9 +122,9 @@ impl UfwLog {
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
                 "action" => new.action = value,
-                "in" => new.r#in = Some(value),
-                "out" => new.out = Some(value),
-                "mac" => new.mac = Some(value),
+                "in" => new.r#in = value,
+                "out" => new.out = value,
+                "mac" => new.mac = value,
                 "src" => new.src = value,
                 "dst" => new.dst = value,
                 "len" => new.len = value.parse::<u32>().unwrap(),
