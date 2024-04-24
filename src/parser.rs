@@ -66,8 +66,40 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
             1 => associative.insert("day", value.to_string()),
             2 => associative.insert("time", value.to_string()),
             3 => associative.insert("hostname", value.to_string()),
-            5 => associative.insert("uptime", remove_brackets(value.to_string())),
-            7 => associative.insert("action", remove_brackets(value.to_string())),
+            5 => {
+                // length only 1 mean: string only content "["
+                // so need to get next element
+                if value.len() == 1 {
+                    associative.insert(
+                        "uptime",
+                        remove_brackets(split_log.get(6).unwrap().to_string()),
+                    )
+                } else {
+                    associative.insert("uptime", remove_brackets(value.to_string()))
+                }
+            }
+            7 => {
+                // if value contain "UFW", the next element is the action data
+                if value.contains("[UFW") {
+                    let index8 = split_log.get(8).unwrap().to_string();
+                    // if this value contain "]", that is all action name
+                    // else, concat this and next element
+                    if index8.contains("]") {
+                        associative.insert("action", remove_brackets(index8))
+                    } else {
+                        associative.insert(
+                            "action",
+                            format!(
+                                "{} {}",
+                                index8,
+                                remove_brackets(split_log.get(9).unwrap().to_string())
+                            ),
+                        )
+                    }
+                } else {
+                    associative.insert("action", remove_brackets(value.to_string()))
+                }
+            }
             _ => None,
         };
         // handle flag
