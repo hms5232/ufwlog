@@ -54,9 +54,10 @@ pub fn convert(
     file_path = input_filename.as_str();
 
     let mut wtr = csv::Writer::from_path(file_path)?;
-    wtr.write_record(HEADER).expect("Write failed when try to insert header row.");
+    wtr.write_record(HEADER)
+        .expect("Write failed when try to insert header row.");
 
-    let mut count:u32 = 0;
+    let mut count: u32 = 0;
     for i in logs {
         count += 1;
         print!("Handle {} rows...", count);
