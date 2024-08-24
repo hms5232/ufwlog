@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::PathBuf;
@@ -58,12 +59,8 @@ pub fn convert(
     wtr.write_record(HEADER)
         .expect("Write failed when try to insert header row.");
 
-    let mut count: u32 = 0;
+    let pb = ProgressBar::new(logs.len() as u64);
     for i in logs {
-        count += 1;
-        print!("Handle {} rows...", count);
-        print!("\r");
-
         let mut row = vec![];
 
         // control bits / flags
@@ -129,8 +126,10 @@ pub fn convert(
         row.push(i.get("origin").unwrap().to_owned());
 
         wtr.write_record(row).expect("Write csv file occur error");
+
+        pb.inc(1); // increase progress bar
     }
-    println!(); // avoid output be overridden
+    pb.finish();
 
     Ok(())
 }
