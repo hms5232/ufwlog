@@ -1,4 +1,4 @@
 /target
-ufw.log
+ufw*.log
 ufw.log.*
 *.csv

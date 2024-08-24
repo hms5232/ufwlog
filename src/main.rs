@@ -24,11 +24,10 @@ fn main() {
 
             // export with specific format
             match *format {
-                Some(ExportFormat::Csv) => crate::csv::convert(
-                    ufw_log_map,
-                    Some(output_filename.clone().unwrap().as_str()),
-                )
-                .unwrap(),
+                Some(ExportFormat::Csv) => {
+                    csv::convert(ufw_log_map, Some(output_filename.clone().unwrap().as_str()))
+                        .unwrap()
+                }
                 _ => println!("Current not support other format"),
             }
         }

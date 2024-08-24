@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::path::PathBuf;
 
 /// csv header
 const HEADER: [&str; 35] = [
@@ -45,15 +46,15 @@ pub fn convert(
     output_filename: Option<&str>,
 ) -> Result<(), Box<dyn Error>> {
     // resolve file path and name
-    let file_path;
-    let mut input_filename = output_filename.unwrap_or("./ufwlog.csv").to_string();
-    // append extension if not exists
-    if !input_filename.ends_with(".csv") {
-        input_filename.push_str(".csv");
+    let mut path = PathBuf::from(output_filename.unwrap_or("ufwlog.csv"));
+    if path.file_name().is_none() {
+        return Err(Box::from("Please specify a file name."));
     }
-    file_path = input_filename.as_str();
+    if path.extension().is_none() {
+        path.set_extension("csv");
+    };
 
-    let mut wtr = csv::Writer::from_path(file_path)?;
+    let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
     wtr.write_record(HEADER)
         .expect("Write failed when try to insert header row.");
 
