@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand, ValueEnum};
+use indicatif::{ProgressBar, ProgressStyle};
 
 mod csv;
 mod parser;
@@ -17,10 +18,18 @@ fn main() {
         }) => {
             let mut ufw_log_map = vec![];
             let log_by_line = parser::read_lines(log_path.clone().unwrap().as_str());
+            // progress bar
+            let pb_style = ProgressStyle::with_template("{msg} {wide_bar} {pos}/{len}").unwrap();
+            let parser_pb = ProgressBar::new(log_by_line.len() as u64)
+                .with_style(pb_style)
+                .with_message("Parse ufw log ...");
+            // parsing
             for i in 0..log_by_line.len() {
                 let map = parser::to_hashmap(&log_by_line[i]);
                 ufw_log_map.push(map);
+                parser_pb.inc(1);
             }
+            parser_pb.finish_with_message("Parse ufw log success.");
 
             // export with specific format
             match *format {
