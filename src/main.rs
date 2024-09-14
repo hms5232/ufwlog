@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use indicatif::{ProgressBar, ProgressStyle};
 
 mod export;
@@ -42,7 +42,8 @@ fn main() {
             }
         }
         _ => {
-            todo!("Default behavior.")
+            // show help message
+            Cli::command().print_help().unwrap();
         }
     }
 }
