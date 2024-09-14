@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use indicatif::{ProgressBar, ProgressStyle};
 
-mod csv;
+mod export;
 mod parser;
 
 fn main() {
@@ -33,10 +33,11 @@ fn main() {
 
             // export with specific format
             match *format {
-                Some(ExportFormat::Csv) => {
-                    csv::convert(ufw_log_map, Some(output_filename.clone().unwrap().as_str()))
-                        .unwrap()
-                }
+                Some(export::Format::Csv) => export::csv::convert(
+                    ufw_log_map,
+                    Some(output_filename.clone().unwrap().as_str()),
+                )
+                .unwrap(),
                 _ => println!("Current not support other format"),
             }
         }
@@ -59,7 +60,7 @@ enum SubCommands {
     Export {
         /// Which type to be export.
         #[arg(default_value = "csv")]
-        format: Option<ExportFormat>,
+        format: Option<export::Format>,
 
         // if linux, default is read ufw log path
         // else, read current directory "ufw.log" file
@@ -86,10 +87,4 @@ enum SubCommands {
         )]
         output_filename: Option<String>,
     },
-}
-
-/// Supported export format.
-#[derive(Debug, Clone, ValueEnum)]
-enum ExportFormat {
-    Csv,
 }
