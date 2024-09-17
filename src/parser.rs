@@ -70,18 +70,15 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
                 // length only 1 mean: string only content "["
                 // so need to get next element
                 if value.len() == 1 {
-                    associative.insert(
-                        "uptime",
-                        remove_brackets(split_log.get(6).unwrap().to_string()),
-                    )
+                    associative.insert("uptime", remove_brackets(split_log.get(6).unwrap()))
                 } else {
-                    associative.insert("uptime", remove_brackets(value.to_string()))
+                    associative.insert("uptime", remove_brackets(value))
                 }
             }
             7 => {
                 // if value contain "UFW", the next element is the action data
                 if value.contains("[UFW") {
-                    let index8 = split_log.get(8).unwrap().to_string();
+                    let index8 = split_log.get(8).unwrap();
                     // if this value contain "]", that is all action name
                     // else, concat this and next element
                     if index8.contains("]") {
@@ -89,15 +86,11 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
                     } else {
                         associative.insert(
                             "action",
-                            format!(
-                                "{} {}",
-                                index8,
-                                remove_brackets(split_log.get(9).unwrap().to_string())
-                            ),
+                            format!("{} {}", index8, remove_brackets(split_log.get(9).unwrap())),
                         )
                     }
                 } else {
-                    associative.insert("action", remove_brackets(value.to_string()))
+                    associative.insert("action", remove_brackets(value))
                 }
             }
             _ => None,
@@ -120,7 +113,7 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
 }
 
 /// Replace brackets `[`, `]` in string
-fn remove_brackets(string: String) -> String {
+fn remove_brackets(string: &str) -> String {
     string.replace("[", "").replace("]", "")
 }
 
@@ -145,7 +138,7 @@ mod test {
     #[test]
     // test split by space and should filter empty element
     fn test_remove_brackets() {
-        let string: String = String::from("[UFW LOG]");
+        let string: &str = "[UFW LOG]";
         assert_eq!(remove_brackets(string), String::from("UFW LOG"));
     }
 }
