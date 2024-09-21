@@ -3,6 +3,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 
 mod export;
 mod parser;
+mod ufw_log;
 
 fn main() {
     // parse cli subcommand, arguments and flags

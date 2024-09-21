@@ -118,6 +118,7 @@ impl UfwLog {
             match lowercase_key.as_str() {
                 "origin" => new.origin = value,
                 "month" => new.month = get_month_number(value),
+                "day" => new.day = value.parse::<u8>().unwrap(),
                 "time" => new.time = value,
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,

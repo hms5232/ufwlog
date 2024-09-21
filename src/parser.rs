@@ -1,5 +1,6 @@
 //! A parser for ufw log file.
 
+use crate::ufw_log::UfwLog;
 use std::collections::HashMap;
 use std::fs;
 
@@ -115,6 +116,16 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
 /// Replace brackets `[`, `]` in string
 fn remove_brackets(string: &str) -> String {
     string.replace("[", "").replace("]", "")
+}
+
+/// Get vector of UfwLog object from log file
+pub fn get_ufwlog_vec(path: &str) -> Vec<UfwLog> {
+    let log_by_line = read_lines(path);
+    let ufw_log_vec: Vec<UfwLog> = log_by_line
+        .iter()
+        .map(|log| UfwLog::new(to_hashmap(log)))
+        .collect();
+    ufw_log_vec
 }
 
 #[cfg(test)]
