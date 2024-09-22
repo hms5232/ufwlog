@@ -9,54 +9,54 @@ use std::collections::HashMap;
 /// https://unix.stackexchange.com/a/702909
 #[derive(Debug)]
 pub struct UfwLog {
-    origin: String,
+    pub origin: String,
 
-    month: u8,
-    day: u8,
-    time: String,
-    hostname: String,
-    uptime: String,
-    action: String,
+    pub month: u8,
+    pub day: u8,
+    pub time: String,
+    pub hostname: String,
+    pub uptime: String,
+    pub action: String,
 
-    r#in: String,
-    out: String,
-    mac: String,
-    src: String,
-    dst: String,
-    len: u32,
-    tos: Option<String>, // type of service
-    prec: Option<String>,
-    ttl: Option<u16>,
-    id: Option<u32>,
-    df: bool, // don't fragment
-    proto: String,
-    spt: Option<u16>,    // source port
-    dpt: Option<u16>,    // detestation port
-    window: Option<u32>, // the size of packet the sender is willing to receive
-    res: String,
+    pub r#in: String,
+    pub out: String,
+    pub mac: String,
+    pub src: String,
+    pub dst: String,
+    pub len: u32,
+    pub tos: Option<String>, // type of service
+    pub prec: Option<String>,
+    pub ttl: Option<u16>,
+    pub id: Option<u32>,
+    pub df: bool, // don't fragment
+    pub proto: String,
+    pub spt: Option<u16>,    // source port
+    pub dpt: Option<u16>,    // detestation port
+    pub window: Option<u32>, // the size of packet the sender is willing to receive
+    pub res: String,
 
     // control bits / flag
-    syn: bool,
-    ack: bool,
-    fin: bool,
-    rst: bool,
-    psh: bool,
-    cwr: bool,
-    ece: bool,
-    urgp: bool,
+    pub syn: bool,
+    pub ack: bool,
+    pub fin: bool,
+    pub rst: bool,
+    pub psh: bool,
+    pub cwr: bool,
+    pub ece: bool,
+    pub urgp: bool,
 
-    tc: Option<i32>,      // TODO: type check need
-    hoplimit: Option<u8>, // hop limit
-    flowbl: Option<i32>,  // TODO: type need check
-    r#type: Option<i32>,  // TODO: type need check
-    code: Option<String>, // TODO: type check need
-    seq: Option<u32>,
-    mtu: Option<u16>,
-    mark: Option<String>, // TODO: type check need
+    pub tc: Option<i32>,      // TODO: type check need
+    pub hoplimit: Option<u8>, // hop limit
+    pub flowbl: Option<i32>,  // TODO: type need check
+    pub r#type: Option<i32>,  // TODO: type need check
+    pub code: Option<String>, // TODO: type check need
+    pub seq: Option<u32>,
+    pub mtu: Option<u16>,
+    pub mark: Option<String>, // TODO: type check need
 
     // unconfirmed
-    physin: Option<String>,
-    phyout: Option<String>,
+    pub physin: Option<String>,
+    pub phyout: Option<String>,
 }
 
 impl UfwLog {
