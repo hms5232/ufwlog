@@ -1,5 +1,5 @@
+use crate::ufw_log::UfwLog;
 use indicatif::ProgressBar;
-use std::collections::HashMap;
 use std::error::Error;
 use std::path::PathBuf;
 
@@ -42,10 +42,7 @@ const HEADER: [&str; 35] = [
     "origin",
 ];
 
-pub fn convert(
-    logs: Vec<HashMap<&str, String>>,
-    output_filename: Option<&str>,
-) -> Result<(), Box<dyn Error>> {
+pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>) -> Result<(), Box<dyn Error>> {
     // resolve file path and name
     let mut path = PathBuf::from(output_filename.unwrap_or("ufwlog.csv"));
     if path.file_name().is_none() {
@@ -65,65 +62,65 @@ pub fn convert(
 
         // control bits / flags
         let mut flags = vec![];
-        if i.contains_key("syn") {
-            flags.push("SYN")
+        if i.syn {
+            flags.push("SYN");
         }
-        if i.contains_key("ack") {
-            flags.push("ACK")
+        if i.ack {
+            flags.push("ACK");
         }
-        if i.contains_key("fin") {
-            flags.push("FIN")
+        if i.fin {
+            flags.push("FIN");
         }
-        if i.contains_key("rst") {
-            flags.push("RST")
+        if i.rst {
+            flags.push("RST");
         }
-        if i.contains_key("psh") {
-            flags.push("PSH")
+        if i.psh {
+            flags.push("PSH");
         }
-        if i.contains_key("cwr") {
-            flags.push("CWR")
+        if i.cwr {
+            flags.push("CWR");
         }
 
         // should push by "HEADER" order
-        row.push(i.get("month").unwrap().to_owned());
-        row.push(i.get("day").unwrap().to_owned());
-        row.push(i.get("time").unwrap().to_owned());
-        row.push(i.get("hostname").unwrap().to_owned());
-        row.push(i.get("uptime").unwrap().to_owned());
-        row.push(i.get("action").unwrap().to_owned());
-        row.push(i.get("IN").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("OUT").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("MAC").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("SRC").unwrap().to_owned());
-        row.push(i.get("DST").unwrap().to_owned());
-        row.push(i.get("LEN").unwrap().to_owned());
-        row.push(i.get("TOS").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("PREC").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("TTL").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("ID").unwrap_or(&"".to_string()).to_owned());
-        row.push(if i.contains_key("df") {
+        row.push(i.month.to_string());
+        row.push(i.day.to_string());
+        row.push(i.time);
+        row.push(i.hostname);
+        row.push(i.uptime);
+        row.push(i.action);
+        row.push(i.r#in);
+        row.push(i.out);
+        row.push(i.mac);
+        row.push(i.src);
+        row.push(i.dst);
+        row.push(i.len.to_string());
+        row.push(i.tos.unwrap_or("".to_string()));
+        row.push(i.prec.unwrap_or("".to_string()));
+        row.push(unwrap_or_empty_then_to_string(i.ttl));
+        row.push(unwrap_or_empty_then_to_string(i.id));
+        row.push(if i.df {
             "DF".to_string()
         } else {
             "".to_string()
         });
-        row.push(i.get("PROTO").unwrap().to_owned());
-        row.push(i.get("SPT").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("DPT").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("WINDOW").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("RES").unwrap_or(&"".to_string()).to_owned());
+        row.push(i.proto);
+        row.push(unwrap_or_empty_then_to_string(i.spt));
+        row.push(unwrap_or_empty_then_to_string(i.dpt));
+        row.push(unwrap_or_empty_then_to_string(i.window));
+        row.push(i.res);
         row.push(flags.join(" "));
-        row.push(i.get("URGP").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("TC").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("HOPLIMIT").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("FLOWLBL").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("TYPE").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("CODE").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("SEQ").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("MTU").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("MARK").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("PHYSIN").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("PHYOUT").unwrap_or(&"".to_string()).to_owned());
-        row.push(i.get("origin").unwrap().to_owned());
+        row.push((if i.urgp { "1" } else { "0" }).to_string());
+        row.push(unwrap_or_empty_then_to_string(i.tc));
+        row.push(unwrap_or_empty_then_to_string(i.hoplimit));
+        row.push(unwrap_or_empty_then_to_string(i.flowbl));
+        row.push(unwrap_or_empty_then_to_string(i.r#type));
+        row.push(unwrap_or_empty_then_to_string(i.code));
+        row.push(unwrap_or_empty_then_to_string(i.seq));
+        row.push(unwrap_or_empty_then_to_string(i.mtu));
+        row.push(unwrap_or_empty_then_to_string(i.mark));
+        row.push(unwrap_or_empty_then_to_string(i.physin));
+        row.push(unwrap_or_empty_then_to_string(i.phyout));
+        row.push(i.origin.to_owned());
 
         wtr.write_record(row).expect("Write csv file occur error");
 
@@ -132,4 +129,37 @@ pub fn convert(
     pb.finish();
 
     Ok(())
+}
+
+/// If value is none, return empty string, else return value that convert to string
+fn unwrap_or_empty_then_to_string<T: ToString>(value: Option<T>) -> String {
+    if value.is_some() {
+        return value.unwrap().to_string();
+    }
+    "".to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    mod test_unwrap_or_empty_then_to_string {
+        use super::super::unwrap_or_empty_then_to_string;
+
+        #[test]
+        fn test_input_none() {
+            assert_eq!(
+                unwrap_or_empty_then_to_string::<String>(None),
+                "".to_string()
+            );
+        }
+
+        #[test]
+        fn test_input_unsigned_integer() {
+            assert_eq!(unwrap_or_empty_then_to_string(Some(443)), "443".to_string());
+        }
+
+        #[test]
+        fn test_input_singed_integer() {
+            assert_eq!(unwrap_or_empty_then_to_string(Some(-1)), "-1".to_string());
+        }
+    }
 }
