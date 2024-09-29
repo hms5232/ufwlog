@@ -14,13 +14,12 @@ fn main() {
         // export
         Some(SubCommands::Export {
             format,
-            log_path,
             output_filename,
         }) => {
             // export with specific format
             match *format {
                 Some(export::Format::Csv) => export::csv::convert(
-                    parser::get_ufwlog_vec(log_path.clone().unwrap().as_str()),
+                    parser::get_ufwlog_vec(cli.log_path.clone().unwrap().as_str()),
                     Some(output_filename.clone().unwrap().as_str()),
                 )
                 .unwrap(),
@@ -39,6 +38,28 @@ fn main() {
 struct Cli {
     #[command(subcommand)]
     command: Option<SubCommands>,
+
+    // "log_path" is a global flag for all subcommands, and the default value is dependent on OS.
+    // if linux, default is read ufw log path
+    #[cfg(target_os = "linux")]
+    #[arg(
+        short,
+        long,
+        value_name = "log_path",
+        global = true,
+        default_value = "/var/log/ufw.log"
+    )]
+    log_path: Option<String>,
+    // else, read current directory "ufw.log" file
+    #[cfg(not(target_os = "linux"))]
+    #[arg(
+        short,
+        long,
+        value_name = "log_path",
+        global = true,
+        default_value = "./ufw.log"
+    )]
+    log_path: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -48,22 +69,6 @@ enum SubCommands {
         /// Which type to be export.
         #[arg(default_value = "csv")]
         format: Option<export::Format>,
-
-        // if linux, default is read ufw log path
-        // else, read current directory "ufw.log" file
-        #[cfg(target_os = "linux")]
-        /// Specify a log file.
-        #[arg(
-            short,
-            long,
-            value_name = "log_path",
-            default_value = "/var/log/ufw.log"
-        )]
-        log_path: Option<String>,
-        #[cfg(not(target_os = "linux"))]
-        /// Specify a log file.
-        #[arg(short, long, value_name = "log_path", default_value = "./ufw.log")]
-        log_path: Option<String>,
 
         /// Specify output path and filename.
         #[arg(
