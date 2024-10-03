@@ -77,21 +77,21 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
                 }
             }
             7 => {
-                // if value contain "UFW", the next element is the action data
+                // if value contain "UFW", the next element is the event data
                 if value.contains("[UFW") {
                     let index8 = split_log.get(8).unwrap();
-                    // if this value contain "]", that is all action name
+                    // if this value contain "]", that is all event name
                     // else, concat this and next element
                     if index8.contains("]") {
-                        associative.insert("action", remove_brackets(index8))
+                        associative.insert("event", remove_brackets(index8))
                     } else {
                         associative.insert(
-                            "action",
+                            "event",
                             format!("{} {}", index8, remove_brackets(split_log.get(9).unwrap())),
                         )
                     }
                 } else {
-                    associative.insert("action", remove_brackets(value))
+                    associative.insert("event", remove_brackets(value))
                 }
             }
             _ => None,

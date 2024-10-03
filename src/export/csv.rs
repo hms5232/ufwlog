@@ -10,7 +10,7 @@ const HEADER: [&str; 35] = [
     "Time",
     "hostname",
     "uptime",
-    "action",
+    "event",
     "IN",
     "OUT",
     "MAC",
@@ -87,7 +87,7 @@ pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>) -> Result<(), B
         row.push(i.time);
         row.push(i.hostname);
         row.push(i.uptime);
-        row.push(i.action);
+        row.push(i.event);
         row.push(i.r#in);
         row.push(i.out);
         row.push(i.mac);

@@ -5,8 +5,8 @@ use std::collections::HashMap;
 /// If the field may not exist in some log level, it will be declared as `Option` type.
 ///
 /// Each field mean can see the following site:
-/// https://help.ubuntu.com/community/UFW#Interpreting_Log_Entries
-/// https://unix.stackexchange.com/a/702909
+/// * https://help.ubuntu.com/community/UFW#Interpreting_Log_Entries
+/// * https://unix.stackexchange.com/a/702909
 #[derive(Debug)]
 pub struct UfwLog {
     pub origin: String,
@@ -16,7 +16,7 @@ pub struct UfwLog {
     pub time: String,
     pub hostname: String,
     pub uptime: String,
-    pub action: String,
+    pub event: String,
 
     pub r#in: String,
     pub out: String,
@@ -71,7 +71,7 @@ impl UfwLog {
             time: "".to_string(),
             hostname: "".to_string(),
             uptime: "".to_string(),
-            action: "".to_string(),
+            event: "".to_string(),
             r#in: "".to_string(),
             out: "".to_string(),
             mac: "".to_string(),
@@ -122,7 +122,7 @@ impl UfwLog {
                 "time" => new.time = value,
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
-                "action" => new.action = value,
+                "event" => new.event = value,
                 "in" => new.r#in = value,
                 "out" => new.out = value,
                 "mac" => new.mac = value,
@@ -164,8 +164,8 @@ impl UfwLog {
     }
 }
 
-/// The ufw action list
-enum UfwAction {
+/// The ufw logged event list
+enum LoggedEvent {
     Black,
     Allow,
     Deny,
