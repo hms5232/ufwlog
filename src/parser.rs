@@ -1,8 +1,10 @@
 //! A parser for ufw log file.
 
 use crate::ufw_log::UfwLog;
+use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
 use std::fs;
+use std::time::Duration;
 
 /// Read file and get content line by line
 ///
@@ -121,10 +123,32 @@ fn remove_brackets(string: &str) -> String {
 /// Get vector of UfwLog object from log file
 pub fn get_ufwlog_vec(path: &str) -> Vec<UfwLog> {
     let log_by_line = read_lines(path);
+
+    // make a spinner
+    let pb = ProgressBar::new_spinner();
+    pb.enable_steady_tick(Duration::from_millis(150));
+    pb.set_style(
+        ProgressStyle::with_template("{spinner:.yellow} {msg}")
+            .unwrap()
+            .tick_strings(&[
+                "😑😑😑😑😑",
+                "🧐😑😑😑😑",
+                "🤔🧐😑😑😑",
+                "🤔🤔🧐😑😑",
+                "🤔🤔🤔🧐😑",
+                "🤔🤔🤔🤔🧐",
+                "🤯🤯🤯🤯🤯",
+                "🤯🤯🤯🤯🤯",
+                "🥳🥳🥳🥳🥳",
+            ]),
+    );
+    pb.set_message("Parsing...");
+    // parse as UfwLog struct
     let ufw_log_vec: Vec<UfwLog> = log_by_line
         .iter()
         .map(|log| UfwLog::new(to_hashmap(log)))
         .collect();
+    pb.finish_with_message("Parsed!");
     ufw_log_vec
 }
 

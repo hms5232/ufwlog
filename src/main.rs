@@ -1,5 +1,4 @@
 use clap::{CommandFactory, Parser, Subcommand};
-use indicatif::{ProgressBar, ProgressStyle};
 
 mod export;
 mod parser;
