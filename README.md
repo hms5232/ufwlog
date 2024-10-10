@@ -21,7 +21,7 @@ Because reference of UFW log is too few and some difference between version, con
 
 If you find any problem, just create an issue with original log.
 
-You can de-identification original log content, but keep type. Otherwise, it will make me make mistake judgment. For example, if a new field `FID=0106` changed to `FID=XXXX` when reporting, I will add `FID` as string because of `X` char. In this case, you can change record to `FID=0168` because data type is same as origin log.
+You can de-identification original log content, but keep type. Otherwise, it will make me make mistake judgment. For example, if a new field `FID=5232` changed to `FID=XXXX` when reporting, I will add `FID` as string because of `X` char. In this case, you can change record to `FID=1234` because data type is same as origin log.
 
 ## LICENSE
 
