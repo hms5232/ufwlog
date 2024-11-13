@@ -65,17 +65,25 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
         }
         // handle head part
         match index {
-            0 => associative.insert("month", value.to_string()),
-            1 => associative.insert("day", value.to_string()),
-            2 => associative.insert("time", value.to_string()),
-            3 => associative.insert("hostname", value.to_string()),
+            0 => {
+                associative.insert("month", value.to_string());
+            }
+            1 => {
+                associative.insert("day", value.to_string());
+            }
+            2 => {
+                associative.insert("time", value.to_string());
+            }
+            3 => {
+                associative.insert("hostname", value.to_string());
+            }
             5 => {
                 // length only 1 mean: string only content "["
                 // so need to get next element
                 if value.len() == 1 {
-                    associative.insert("uptime", remove_brackets(split_log.get(6).unwrap()))
+                    associative.insert("uptime", remove_brackets(split_log.get(6).unwrap()));
                 } else {
-                    associative.insert("uptime", remove_brackets(value))
+                    associative.insert("uptime", remove_brackets(value));
                 }
             }
             7 => {
@@ -85,18 +93,18 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
                     // if this value contain "]", that is all event name
                     // else, concat this and next element
                     if index8.contains("]") {
-                        associative.insert("event", remove_brackets(index8))
+                        associative.insert("event", remove_brackets(index8));
                     } else {
                         associative.insert(
                             "event",
                             format!("{} {}", index8, remove_brackets(split_log.get(9).unwrap())),
-                        )
+                        );
                     }
                 } else {
-                    associative.insert("event", remove_brackets(value))
+                    associative.insert("event", remove_brackets(value));
                 }
             }
-            _ => None,
+            _ => (),
         };
         // handle flag
         match value.trim() {
