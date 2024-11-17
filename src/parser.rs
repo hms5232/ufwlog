@@ -49,6 +49,8 @@ pub fn split_by_space(log: &String) -> Vec<&str> {
 pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
     let split_log = split_by_space(log);
     let mut associative = HashMap::new();
+    let mut is_event_range = false; // indicate whether the current record is in event name range
+    let mut event_name = vec![];
 
     // add origin record
     associative.insert("origin", log.to_owned());
@@ -86,25 +88,36 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
                     associative.insert("uptime", remove_brackets(value));
                 }
             }
-            7 => {
-                // if value contain "UFW", the next element is the event data
+            6 => {
+                // If the uptime is fully filled the bracket, the 6th element may be the start of event name.
                 if value.contains("[UFW") {
-                    let index8 = split_log.get(8).unwrap();
-                    // if this value contain "]", that is all event name
-                    // else, concat this and next element
-                    if index8.contains("]") {
-                        associative.insert("event", remove_brackets(index8));
-                    } else {
-                        associative.insert(
-                            "event",
-                            format!("{} {}", index8, remove_brackets(split_log.get(9).unwrap())),
-                        );
-                    }
-                } else {
-                    associative.insert("event", remove_brackets(value));
+                    is_event_range = true;
                 }
             }
-            _ => (),
+            _ => {
+                // handle event string
+                //
+                // because of align of uptime, we can't just depend on index to get the event name
+                // for example, it may be "kernel: [   21.050483] [UFW BLOCK]"
+
+                // event index probably in [6, 9]
+                if index <= 9 && index > 6 {
+                    // the end of event name
+                    if value.contains("]") {
+                        is_event_range = false;
+                        event_name.push(remove_brackets(value));
+                        associative.insert("event", event_name.join(" ").trim().to_string());
+                        continue;
+                    }
+                    if is_event_range {
+                        event_name.push(value.parse().unwrap());
+                    }
+                    // the start of event name
+                    if value.contains("[UFW") {
+                        is_event_range = true;
+                    }
+                }
+            }
         };
         // handle flag
         match value.trim() {
