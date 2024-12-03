@@ -1,4 +1,5 @@
-use clap::{CommandFactory, Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand, ValueHint};
+use clap_complete::generate;
 
 mod export;
 mod parser;
@@ -25,6 +26,12 @@ fn main() {
                 _ => println!("Current not support other format"),
             }
         }
+        Some(SubCommands::Completion { shell }) => {
+            // generate shell completion
+            let mut app = Cli::command();
+            let name = app.get_name().to_owned();
+            generate(*shell, &mut app, name, &mut std::io::stdout());
+        }
         _ => {
             // show help message
             Cli::command().print_help().unwrap();
@@ -33,7 +40,7 @@ fn main() {
 }
 
 #[derive(Parser)]
-#[command(name = "ufwlog", version, about, long_about = None)]
+#[command(name = "ufwlog", bin_name = "ufwlog", version, about, long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Option<SubCommands>,
@@ -46,6 +53,7 @@ struct Cli {
         long,
         value_name = "log_path",
         global = true,
+        value_hint = ValueHint::FilePath,
         default_value = "/var/log/ufw.log"
     )]
     log_path: Option<String>,
@@ -56,6 +64,7 @@ struct Cli {
         long,
         value_name = "log_path",
         global = true,
+        value_hint = ValueHint::FilePath,
         default_value = "./ufw.log"
     )]
     log_path: Option<String>,
@@ -74,8 +83,14 @@ enum SubCommands {
             short,
             long = "output",
             value_name = "filename",
+            value_hint = ValueHint::AnyPath,
             default_value = "ufwlog"
         )]
         output_filename: Option<String>,
+    },
+    /// Generate shell completion.
+    Completion {
+        #[arg(value_name = "shell", value_enum)]
+        shell: clap_complete::Shell,
     },
 }

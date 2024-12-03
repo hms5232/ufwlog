@@ -8,5 +8,6 @@ description = "A program to parse, format and export ufw log."
 
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
+clap_complete = "4.5.38"
 csv = "1.3.0"
 indicatif = "0.17.8"
