@@ -46,7 +46,7 @@ pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>) -> Result<(), B
     // resolve file path and name
     let mut path = PathBuf::from(output_filename.unwrap_or("ufwlog.csv"));
     if path.file_name().is_none() {
-        return Err(Box::from("Please specify a file name."));
+        return Err("Please specify a file name.".into());
     }
     if path.extension().is_none() {
         path.set_extension("csv");
