@@ -3,7 +3,8 @@
 use crate::ufw_log::UfwLog;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
-use std::fs;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::time::Duration;
 
 /// Read file and get content line by line
@@ -32,12 +33,15 @@ use std::time::Duration;
 /// ```
 pub fn read_lines(path: &str) -> Vec<String> {
     // read log file
-    let file = fs::read_to_string(path);
+    let file = File::open(path);
     if file.is_err() {
         panic!("Error occur when trying to read file.");
     }
 
-    file.unwrap().lines().map(String::from).collect()
+    BufReader::new(file.unwrap())
+        .lines()
+        .map(|line| String::from(line.unwrap()))
+        .collect()
 }
 
 /// Split log record by space, and filter empty element(s).
