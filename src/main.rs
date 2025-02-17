@@ -15,12 +15,14 @@ fn main() {
         Some(SubCommands::Export {
             format,
             output_filename,
+            overwrite,
         }) => {
             // export with specific format
             match *format {
                 Some(export::Format::Csv) => export::csv::convert(
                     parser::get_ufwlog_vec(cli.log_path.clone().unwrap().as_str()),
                     Some(output_filename.clone().unwrap().as_str()),
+                    overwrite,
                 )
                 .unwrap(),
                 _ => println!("Current not support other format"),
@@ -87,6 +89,13 @@ enum SubCommands {
             default_value = "ufwlog"
         )]
         output_filename: Option<String>,
+
+        /// Overwrite the output file if it exists.
+        #[arg(
+            long = "overwrite",
+            default_value_t = false,
+        )]
+        overwrite: bool,
     },
     /// Generate shell completion.
     Completion {

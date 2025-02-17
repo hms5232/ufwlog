@@ -42,7 +42,7 @@ const HEADER: [&str; 35] = [
     "origin",
 ];
 
-pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>) -> Result<(), Box<dyn Error>> {
+pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>, overwrite: &bool) -> Result<(), Box<dyn Error>> {
     // resolve file path and name
     let mut path = PathBuf::from(output_filename.unwrap_or("ufwlog.csv"));
     if path.file_name().is_none() {
@@ -51,6 +51,10 @@ pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>) -> Result<(), B
     if path.extension().is_none() {
         path.set_extension("csv");
     };
+    // if the file exists, return error
+    if path.exists() && !overwrite {
+        return Err(format!("The file {} is exist. Overwrite it with `--overwrite` flag.", path.to_str().unwrap()).into());
+    }
 
     let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
     wtr.write_record(HEADER)
