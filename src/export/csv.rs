@@ -50,7 +50,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
         return Err("Please specify a file name.".into());
     }
     if path.extension().is_none() {
-        path.set_extension("csv");
+        path.set_extension(super::Format::Csv.get_extension());
     };
     // if the file exists, return error
     if path.exists() && !config.overwrite {

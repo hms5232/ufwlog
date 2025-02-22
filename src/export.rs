@@ -27,3 +27,12 @@ impl Config {
         }
     }
 }
+
+impl Format {
+    /// Get the extension of this format.
+    fn get_extension(&self) -> &str {
+        match self {
+            Format::Csv => "csv",
+        }
+    }
+}
