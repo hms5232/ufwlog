@@ -1,3 +1,4 @@
+use crate::export::Config;
 use crate::ufw_log::UfwLog;
 use indicatif::ProgressBar;
 use std::error::Error;
@@ -42,9 +43,9 @@ const HEADER: [&str; 35] = [
     "origin",
 ];
 
-pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>, overwrite: &bool) -> Result<(), Box<dyn Error>> {
+pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> {
     // resolve file path and name
-    let mut path = PathBuf::from(output_filename.unwrap_or("ufwlog.csv"));
+    let mut path = PathBuf::from(config.output_filename);
     if path.file_name().is_none() {
         return Err("Please specify a file name.".into());
     }
@@ -52,8 +53,12 @@ pub fn convert(logs: Vec<UfwLog>, output_filename: Option<&str>, overwrite: &boo
         path.set_extension("csv");
     };
     // if the file exists, return error
-    if path.exists() && !overwrite {
-        return Err(format!("The file {} is exist. Overwrite it with `--overwrite` flag.", path.to_str().unwrap()).into());
+    if path.exists() && !config.overwrite {
+        return Err(format!(
+            "The file {} is exist. Overwrite it with `--overwrite` flag.",
+            path.to_str().unwrap()
+        )
+        .into());
     }
 
     let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
