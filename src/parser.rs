@@ -92,12 +92,6 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
                     associative.insert("uptime", remove_brackets(value));
                 }
             }
-            6 => {
-                // If the uptime is fully filled the bracket, the 6th element may be the start of event name.
-                if value.contains("[UFW") {
-                    is_event_range = true;
-                }
-            }
             _ => {
                 // handle event string
                 //
