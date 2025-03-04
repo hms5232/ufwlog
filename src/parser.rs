@@ -35,7 +35,7 @@ pub fn read_lines(path: &str) -> Vec<String> {
     // read log file
     let file = File::open(path);
     if file.is_err() {
-        panic!("Error occur when trying to read file.");
+        panic!("Error occur when trying to read file: {}", file.err().unwrap());
     }
 
     BufReader::new(file.unwrap())
