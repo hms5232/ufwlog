@@ -150,7 +150,7 @@ impl UfwLog {
                 "tc" => new.tc = Some(value.parse::<i32>().unwrap()),
                 "hoplimit" => new.hoplimit = Some(value.parse::<u8>().unwrap()),
                 "flowbl" => new.flowbl = Some(value.parse::<i32>().unwrap()),
-                "r#type" => new.r#type = Some(value.parse::<i32>().unwrap()),
+                "type" => new.r#type = Some(value.parse::<i32>().unwrap()),
                 "code" => new.code = Some(value),
                 "seq" => new.seq = Some(value.parse::<u32>().unwrap()),
                 "mtu" => new.mtu = Some(value.parse::<u16>().unwrap()),
