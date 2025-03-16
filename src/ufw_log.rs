@@ -43,7 +43,7 @@ pub struct UfwLog {
     pub psh: bool,
     pub cwr: bool,
     pub ece: bool,
-    pub urgp: bool,
+    pub urgp: Option<bool>, // Indicates whether the urgent pointer field is relevant. 0 means it's not. Therefore, we convert it to Option<bool>.
 
     pub tc: Option<i32>,      // TODO: type check need
     pub hoplimit: Option<u8>, // hop limit
@@ -95,7 +95,7 @@ impl UfwLog {
             psh: false,
             cwr: false,
             ece: false,
-            urgp: false,
+            urgp: None,
             tc: None,
             hoplimit: None,
             flowbl: None,
@@ -146,7 +146,13 @@ impl UfwLog {
                 "psh" => new.psh = if value == "1" { true } else { false },
                 "cwr" => new.cwr = if value == "1" { true } else { false },
                 "ece" => new.ece = if value == "1" { true } else { false },
-                "urgp" => new.urgp = if value == "1" { true } else { false },
+                "urgp" => {
+                    new.urgp = if value == "1" {
+                        Some(true)
+                    } else {
+                        Some(false)
+                    }
+                }
                 "tc" => new.tc = Some(value.parse::<i32>().unwrap()),
                 "hoplimit" => new.hoplimit = Some(value.parse::<u8>().unwrap()),
                 "flowbl" => new.flowbl = Some(value.parse::<i32>().unwrap()),

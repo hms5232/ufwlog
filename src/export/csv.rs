@@ -118,7 +118,19 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
         row.push(unwrap_or_empty_then_to_string(i.window));
         row.push(i.res);
         row.push(flags.join(" "));
-        row.push((if i.urgp { "1" } else { "0" }).to_string());
+        row.push(
+            // The value follows the flag, so it is empty when it does not appear, and it depends on the record value when it appears
+            if i.urgp.is_some() {
+                if i.urgp.unwrap() {
+                    "1"
+                } else {
+                    "0"
+                }
+            } else {
+                ""
+            }
+            .to_string(),
+        );
         row.push(unwrap_or_empty_then_to_string(i.tc));
         row.push(unwrap_or_empty_then_to_string(i.hoplimit));
         row.push(unwrap_or_empty_then_to_string(i.flowbl));
