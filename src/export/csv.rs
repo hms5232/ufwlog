@@ -133,7 +133,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
         );
         row.push(unwrap_or_empty_then_to_string(i.tc));
         row.push(unwrap_or_empty_then_to_string(i.hoplimit));
-        row.push(unwrap_or_empty_then_to_string(i.flowbl));
+        row.push(unwrap_or_empty_then_to_string(i.flowlbl));
         row.push(unwrap_or_empty_then_to_string(i.r#type));
         row.push(unwrap_or_empty_then_to_string(i.code));
         row.push(unwrap_or_empty_then_to_string(i.seq));

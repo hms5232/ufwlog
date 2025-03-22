@@ -47,7 +47,7 @@ pub struct UfwLog {
 
     pub tc: Option<i32>,      // TODO: type check need
     pub hoplimit: Option<u8>, // hop limit
-    pub flowbl: Option<i32>,  // TODO: type need check
+    pub flowlbl: Option<i32>,  // TODO: type need check
     pub r#type: Option<i32>,  // TODO: type need check
     pub code: Option<String>, // TODO: type check need
     pub seq: Option<u32>,
@@ -98,7 +98,7 @@ impl UfwLog {
             urgp: None,
             tc: None,
             hoplimit: None,
-            flowbl: None,
+            flowlbl: None,
             r#type: None,
             code: None,
             seq: None,
@@ -155,7 +155,7 @@ impl UfwLog {
                 }
                 "tc" => new.tc = Some(value.parse::<i32>().unwrap()),
                 "hoplimit" => new.hoplimit = Some(value.parse::<u8>().unwrap()),
-                "flowbl" => new.flowbl = Some(value.parse::<i32>().unwrap()),
+                "flowlbl" => new.flowlbl = Some(value.parse::<i32>().unwrap()),
                 "type" => new.r#type = Some(value.parse::<i32>().unwrap()),
                 "code" => new.code = Some(value),
                 "seq" => new.seq = Some(value.parse::<u32>().unwrap()),
