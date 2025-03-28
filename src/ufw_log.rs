@@ -47,7 +47,7 @@ pub struct UfwLog {
 
     pub tc: Option<i32>,      // TODO: type check need
     pub hoplimit: Option<u8>, // hop limit
-    pub flowlbl: Option<i32>,  // TODO: type need check
+    pub flowlbl: Option<i32>, // TODO: type need check
     pub r#type: Option<i32>,  // TODO: type need check
     pub code: Option<String>, // TODO: type check need
     pub seq: Option<u32>,
