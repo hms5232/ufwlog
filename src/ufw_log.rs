@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
 /// An ufw log
 ///
@@ -16,7 +17,7 @@ pub struct UfwLog {
     pub time: String,
     pub hostname: String,
     pub uptime: String,
-    pub event: String,
+    pub event: LoggedEvent,
 
     pub r#in: String,
     pub out: String,
@@ -71,7 +72,7 @@ impl UfwLog {
             time: "".to_string(),
             hostname: "".to_string(),
             uptime: "".to_string(),
-            event: "".to_string(),
+            event: LoggedEvent::default(),
             r#in: "".to_string(),
             out: "".to_string(),
             mac: "".to_string(),
@@ -122,7 +123,7 @@ impl UfwLog {
                 "time" => new.time = value,
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
-                "event" => new.event = value,
+                "event" => new.event = LoggedEvent::from(value),
                 "in" => new.r#in = value,
                 "out" => new.out = value,
                 "mac" => new.mac = value,
@@ -171,12 +172,45 @@ impl UfwLog {
 }
 
 /// The ufw logged event list
-enum LoggedEvent {
-    Black,
+#[derive(Debug, Default)]
+pub(crate) enum LoggedEvent {
+    #[default]
+    Unknown, // default
+    Block,
     Allow,
     Deny,
     Audit,
     AuditInvalid, // AUDIT INVALID
+}
+
+impl From<String> for LoggedEvent {
+    fn from(value: String) -> Self {
+        match value.to_uppercase().as_str() {
+            "BLOCK" => LoggedEvent::Block,
+            "ALLOW" => LoggedEvent::Allow,
+            "DENY" => LoggedEvent::Deny,
+            "AUDIT" => LoggedEvent::Audit,
+            "AUDIT INVALID" => LoggedEvent::AuditInvalid,
+            _ => LoggedEvent::Unknown,
+        }
+    }
+}
+
+impl Display for LoggedEvent {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                LoggedEvent::Block => "BLOCK",
+                LoggedEvent::Allow => "ALLOW",
+                LoggedEvent::Deny => "DENY",
+                LoggedEvent::Audit => "AUDIT",
+                LoggedEvent::AuditInvalid => "AUDIT INVALID",
+                _ => "UNKNOWN",
+            }
+        )
+    }
 }
 
 const MONTH: [&str; 12] = [

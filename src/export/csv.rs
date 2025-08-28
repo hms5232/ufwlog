@@ -96,7 +96,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
         row.push(i.time);
         row.push(i.hostname);
         row.push(i.uptime);
-        row.push(i.event);
+        row.push(i.event.to_string());
         row.push(i.r#in);
         row.push(i.out);
         row.push(i.mac);
