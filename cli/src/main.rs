@@ -1,9 +1,7 @@
 use clap::{CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::generate;
-
-mod export;
-mod parser;
-mod ufw_log;
+use ufwlog::export;
+use ufwlog::parser;
 
 fn main() {
     // parse cli subcommand, arguments and flags

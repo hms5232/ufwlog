@@ -9,27 +9,37 @@ use std::time::Duration;
 
 /// Read file and get content line by line
 ///
-/// # Panic
+/// This function reads the entire file and returns each line as a string
+/// in a vector. Empty lines are preserved.
 ///
-/// If the file read failed, it will panic directly.
+/// # Arguments
 ///
-/// # Example
+/// * `path` - Path to the file to read
 ///
-/// Consider we have a file and contain below text:
-/// > parser
+/// # Returns
 ///
-/// > read lines
+/// Returns a `Vec<String>` containing each line from the file
 ///
-/// then use this function to get file content:
+/// # Panics
 ///
-/// ```
-/// read_lines(file_path)
-/// ```
+/// Panics if the file cannot be opened or read
 ///
-/// will return
+/// # Examples
 ///
 /// ```
-/// vec![String::from("parser"), String::from("read lines")]
+/// use ufwlog::parser::read_lines;
+/// use std::fs;
+/// use std::io::Write;
+///
+/// // Create a temporary file for testing
+/// let test_content = "line 1\nline 2\nline 3";
+/// fs::write("test_file.txt", test_content).unwrap();
+///
+/// let lines = read_lines("test_file.txt");
+/// assert_eq!(lines, vec!["line 1", "line 2", "line 3"]);
+///
+/// // Clean up
+/// fs::remove_file("test_file.txt").unwrap();
 /// ```
 pub fn read_lines(path: &str) -> Vec<String> {
     // read log file

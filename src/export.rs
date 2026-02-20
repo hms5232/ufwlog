@@ -10,7 +10,7 @@ pub enum Format {
 
 #[derive(Debug)]
 /// The config and option for export
-pub(crate) struct Config {
+pub struct Config {
     output_filename: String,
     overwrite: bool,
 }

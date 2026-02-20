@@ -173,7 +173,7 @@ impl UfwLog {
 
 /// The ufw logged event list
 #[derive(Debug, Default)]
-pub(crate) enum LoggedEvent {
+pub enum LoggedEvent {
     #[default]
     Unknown, // default
     Block,
@@ -217,13 +217,22 @@ const MONTH: [&str; 12] = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-/// Get the month number
+/// Convert month abbreviation to month number (1-12)
 ///
-/// # Example
+/// This is an internal helper function that converts three-letter
+/// month abbreviations to their corresponding numeric values.
 ///
-/// ```
-/// assert_eq!(get_month_number("Apr".to_string(), 4))
-/// ```
+/// # Arguments
+///
+/// * `string` - A string containing the month abbreviation (e.g., "Jan", "Apr", "Dec")
+///
+/// # Returns
+///
+/// Returns a `u8` representing the month number (1-12)
+///
+/// # Panics
+///
+/// Panics if the input string is not a valid month abbreviation
 fn get_month_number(string: String) -> u8 {
     (MONTH.iter().position(|&r| r == string.trim()).unwrap() as u8) + 1
 }
