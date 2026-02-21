@@ -373,8 +373,6 @@ version = "0.2.1"
 dependencies = [
  "assert_cmd",
  "clap",
- "csv",
- "indicatif",
 ]
 
 [[package]]

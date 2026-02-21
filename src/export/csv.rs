@@ -1,11 +1,7 @@
-use crate::export::Config;
 use crate::ufw_log::UfwLog;
-use indicatif::ProgressBar;
-use std::error::Error;
-use std::path::PathBuf;
 
 /// csv header
-const HEADER: [&str; 35] = [
+pub const HEADER: [&str; 35] = [
     "Month",
     "Day",
     "Time",
@@ -43,85 +39,64 @@ const HEADER: [&str; 35] = [
     "origin",
 ];
 
-pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> {
-    // resolve file path and name
-    let mut path = PathBuf::from(config.output_filename);
-    if path.file_name().is_none() {
-        return Err("Please specify a file name.".into());
-    }
-    if path.extension().is_none() {
-        path.set_extension(super::Format::Csv.get_extension());
-    };
-    // if the file exists, return error
-    if path.exists() && !config.overwrite {
-        return Err(format!(
-            "The file {} is exist. Overwrite it with `--overwrite` flag.",
-            path.to_str().unwrap()
-        )
-        .into());
-    }
-
-    let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
-    wtr.write_record(HEADER)
-        .expect("Write failed when try to insert header row.");
-
-    let pb = ProgressBar::new(logs.len() as u64);
-    for i in logs {
+impl UfwLog {
+    /// Get a vector for csv order.
+    pub fn to_csv_vec(&self) -> Vec<String> {
         let mut row = vec![];
 
         // control bits / flags
         let mut flags = vec![];
-        if i.syn {
+        if self.syn {
             flags.push("SYN");
         }
-        if i.ack {
+        if self.ack {
             flags.push("ACK");
         }
-        if i.fin {
+        if self.fin {
             flags.push("FIN");
         }
-        if i.rst {
+        if self.rst {
             flags.push("RST");
         }
-        if i.psh {
+        if self.psh {
             flags.push("PSH");
         }
-        if i.cwr {
+        if self.cwr {
             flags.push("CWR");
         }
 
         // should push by "HEADER" order
-        row.push(i.month.to_string());
-        row.push(i.day.to_string());
-        row.push(i.time);
-        row.push(i.hostname);
-        row.push(i.uptime);
-        row.push(i.event.to_string());
-        row.push(i.r#in);
-        row.push(i.out);
-        row.push(i.mac);
-        row.push(i.src);
-        row.push(i.dst);
-        row.push(i.len.to_string());
-        row.push(i.tos.unwrap_or("".to_string()));
-        row.push(i.prec.unwrap_or("".to_string()));
-        row.push(unwrap_or_empty_then_to_string(i.ttl));
-        row.push(unwrap_or_empty_then_to_string(i.id));
-        row.push(if i.df {
+        row.push(self.month.to_string());
+        row.push(self.day.to_string());
+        row.push(self.time.clone());
+        row.push(self.hostname.clone());
+        row.push(self.uptime.clone());
+        row.push(self.event.to_string());
+        row.push(self.r#in.clone());
+        row.push(self.out.clone());
+        row.push(self.mac.clone());
+        row.push(self.src.clone());
+        row.push(self.dst.clone());
+        row.push(self.len.to_string());
+        row.push(self.tos.clone().unwrap_or("".to_string()));
+        row.push(self.prec.clone().unwrap_or("".to_string()));
+        row.push(unwrap_or_empty_then_to_string(self.ttl));
+        row.push(unwrap_or_empty_then_to_string(self.id));
+        row.push(if self.df {
             "DF".to_string()
         } else {
             "".to_string()
         });
-        row.push(i.proto);
-        row.push(unwrap_or_empty_then_to_string(i.spt));
-        row.push(unwrap_or_empty_then_to_string(i.dpt));
-        row.push(unwrap_or_empty_then_to_string(i.window));
-        row.push(i.res);
+        row.push(self.proto.clone());
+        row.push(unwrap_or_empty_then_to_string(self.spt));
+        row.push(unwrap_or_empty_then_to_string(self.dpt));
+        row.push(unwrap_or_empty_then_to_string(self.window));
+        row.push(self.res.clone());
         row.push(flags.join(" "));
         row.push(
             // The value follows the flag, so it is empty when it does not appear, and it depends on the record value when it appears
-            if i.urgp.is_some() {
-                if i.urgp.unwrap() {
+            if self.urgp.is_some() {
+                if self.urgp.unwrap() {
                     "1"
                 } else {
                     "0"
@@ -131,25 +106,20 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
             }
             .to_string(),
         );
-        row.push(unwrap_or_empty_then_to_string(i.tc));
-        row.push(unwrap_or_empty_then_to_string(i.hoplimit));
-        row.push(unwrap_or_empty_then_to_string(i.flowlbl));
-        row.push(unwrap_or_empty_then_to_string(i.r#type));
-        row.push(unwrap_or_empty_then_to_string(i.code));
-        row.push(unwrap_or_empty_then_to_string(i.seq));
-        row.push(unwrap_or_empty_then_to_string(i.mtu));
-        row.push(unwrap_or_empty_then_to_string(i.mark));
-        row.push(unwrap_or_empty_then_to_string(i.physin));
-        row.push(unwrap_or_empty_then_to_string(i.phyout));
-        row.push(i.origin.to_owned());
+        row.push(unwrap_or_empty_then_to_string(self.tc));
+        row.push(unwrap_or_empty_then_to_string(self.hoplimit));
+        row.push(unwrap_or_empty_then_to_string(self.flowlbl));
+        row.push(unwrap_or_empty_then_to_string(self.r#type));
+        row.push(unwrap_or_empty_then_to_string(self.code.clone()));
+        row.push(unwrap_or_empty_then_to_string(self.seq));
+        row.push(unwrap_or_empty_then_to_string(self.mtu));
+        row.push(unwrap_or_empty_then_to_string(self.mark.clone()));
+        row.push(unwrap_or_empty_then_to_string(self.physin.clone()));
+        row.push(unwrap_or_empty_then_to_string(self.phyout.clone()));
+        row.push(self.origin.clone());
 
-        wtr.write_record(row).expect("Write csv file occur error");
-
-        pb.inc(1); // increase progress bar
+        row
     }
-    pb.finish();
-
-    Ok(())
 }
 
 /// If value is none, return empty string, else return value that convert to string

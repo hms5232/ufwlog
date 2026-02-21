@@ -17,4 +17,3 @@ ufwlog = { path = ".." }
 [[bin]]
 name = "ufwlog"
 path = "src/main.rs"
-

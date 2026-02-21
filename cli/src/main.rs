@@ -1,7 +1,8 @@
+mod export;
+mod parser;
+
 use clap::{CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::generate;
-use ufwlog::export;
-use ufwlog::parser;
 
 fn main() {
     // parse cli subcommand, arguments and flags
@@ -17,7 +18,7 @@ fn main() {
         }) => {
             // export with specific format
             match *format {
-                Some(export::Format::Csv) => export::csv::convert(
+                Some(ufwlog::ExportFormat::Csv) => export::csv::convert(
                     parser::get_ufwlog_vec(cli.log_path.clone().unwrap().as_str()),
                     export::Config::new(output_filename, *overwrite),
                 )
@@ -75,7 +76,7 @@ enum SubCommands {
     Export {
         /// Which type to be export.
         #[arg(default_value = "csv")]
-        format: Option<export::Format>,
+        format: Option<ufwlog::ExportFormat>,
 
         /// Specify output path and filename.
         #[arg(

@@ -6,5 +6,5 @@ pub mod export;
 pub mod parser;
 pub mod ufw_log;
 
-pub use export::Format;
+pub use export::Format as ExportFormat;
 pub use ufw_log::UfwLog;
