@@ -23,6 +23,31 @@ If you find any problem, just create an issue with original log.
 
 You can de-identification original log content, but keep type. Otherwise, it will make me make mistake judgment. For example, if a new field `FID=5232` changed to `FID=XXXX` when reporting, I will add `FID` as string because of `X` char. In this case, you can change record to `FID=1234` because data type is same as origin log.
 
+## Developing
+
+```
+cargo fmt
+cargo test
+```
+
+Check workspace struct:
+
+```
+cargo tree --workspace
+```
+
+### Library
+
+```
+cargo check --lib
+```
+
+### Binary
+
+```
+cargo run -p ufwlog-cli -- [parameters]
+```
+
 ## LICENSE
 
 [MPL 2.0](LICENSE)
