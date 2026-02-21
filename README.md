@@ -27,7 +27,14 @@ You can de-identification original log content, but keep type. Otherwise, it wil
 
 ```
 cargo fmt
-cargo test
+```
+
+run test:
+
+```shell
+cargo test --workspace # all
+cargo test # library
+cargo test -p ufwlog-cli # binary
 ```
 
 Check workspace struct:
