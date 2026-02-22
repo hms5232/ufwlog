@@ -23,7 +23,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
     }
 
     let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
-    wtr.write_record(ufwlog::export::csv::HEADER)
+    wtr.write_record(ufwlog::CSV_HEADER)
         .expect("Write failed when try to insert header row.");
 
     let pb = ProgressBar::new(logs.len() as u64);
