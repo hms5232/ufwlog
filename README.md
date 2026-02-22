@@ -33,7 +33,7 @@ run test:
 
 ```shell
 cargo test --workspace # all
-cargo test # library
+cargo test -p ufwlog # library
 cargo test -p ufwlog-cli # binary
 ```
 
@@ -54,6 +54,8 @@ cargo check --lib
 ```
 cargo run -p ufwlog-cli -- [parameters]
 ```
+
+You can omit the `-p` part because of default members setting.
 
 ## LICENSE
 
