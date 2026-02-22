@@ -1,9 +1,11 @@
+#[cfg(feature = "cli")]
 use clap::ValueEnum;
 
 pub mod csv;
 
-/// Supported format.
-#[derive(Debug, Clone, ValueEnum)]
+/// Supported export formats
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "cli", derive(ValueEnum))]
 pub enum Format {
     Csv,
 }
