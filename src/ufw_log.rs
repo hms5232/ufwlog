@@ -172,7 +172,7 @@ impl UfwLog {
 }
 
 /// The ufw logged event list
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub enum LoggedEvent {
     #[default]
     Unknown, // default
