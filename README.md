@@ -3,17 +3,33 @@ A program to parse, format and export ufw log.
 
 ## Usage
 
-Download binary from [release](https://github.com/hms5232/ufwlog/releases), or clone project run with cargo.
+### CLI
 
-### Export
+See [here](./cli/README.md).
 
-Current only support export to csv:
+### Library crate
 
+```rust
+fn main() {
+    // input log path then get a vec contains UfwLog struct
+    let logs = ufwlog::parser::get_ufwlog_vec("./ufw.log");
+    // filter record
+    let filtered = logs
+        .iter()
+        .filter(|log| log.event == ufwlog::LoggedEvent::Block) // only block event
+        .filter(|log| log.src == "127.0.0.1") // package from 127.0.0.1
+        .collect::<Vec<_>>();
+    
+    // export to csv file
+    let csv_header = ufwlog::CSV_HEADER;
+    // write header row here
+    for log in filtered {
+        let row = log.to_csv_vec();
+        // write row here
+    }
+    // save csv file here
+}
 ```
-ufwlog export -l [log path] --output [filename, default: ufwlog.csv] 
-```
-
-the `--log-path` default is `/var/log/ufw.log` on Linux; `./ufw.log` on Windows and macOS.
 
 ## Reporting
 
