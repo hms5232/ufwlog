@@ -59,6 +59,13 @@ Check workspace struct:
 cargo tree --workspace
 ```
 
+Also, you can use [prek](https://prek.j178.dev/) to check code/files before committing:
+
+```shell
+prek install # install pre-commit hooks
+prek run # run all hooks
+```
+
 ### Library
 
 ```
