@@ -33,12 +33,12 @@ pub fn read_lines(path: &str) -> Vec<String> {
 
     BufReader::new(file.unwrap())
         .lines()
-        .map(|line| String::from(line.unwrap()))
+        .map(|line| line.unwrap())
         .collect()
 }
 
 /// Split log record by space, and filter empty element(s).
-pub fn split_by_space(log: &String) -> Vec<&str> {
+pub fn split_by_space(log: &str) -> Vec<&str> {
     log.split(" ").filter(|&x| !x.is_empty()).collect()
 }
 
@@ -57,7 +57,7 @@ pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
         if value.contains("=") {
             let key_and_value: Vec<&str> = value.split("=").collect();
             associative.insert(
-                key_and_value.get(0).unwrap().trim(),
+                key_and_value.first().unwrap().trim(),
                 key_and_value.get(1).unwrap().to_string(),
             );
             continue;

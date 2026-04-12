@@ -43,6 +43,7 @@ You can de-identification original log content, but keep type. Otherwise, it wil
 
 ```
 cargo fmt
+cargo clippy
 ```
 
 run test:

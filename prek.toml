@@ -4,6 +4,7 @@
 repo = "local"
 hooks = [
     { id = "cargo-fmt-check", name = "cargo fmt check", language = "system", entry = "cargo fmt --check", types = ["rust"], pass_filenames = false },
+    { id = "cargo-clippy", name = "cargo clippy", language = "system", entry = "cargo clippy --all-targets --all-features -- -D warnings", types = ["rust"], pass_filenames = false },
 ]
 
 [[repos]]

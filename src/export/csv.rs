@@ -124,10 +124,7 @@ impl UfwLog {
 
 /// If value is none, return empty string, else return value that convert to string
 fn unwrap_or_empty_then_to_string<T: ToString>(value: Option<T>) -> String {
-    if value.is_some() {
-        return value.unwrap().to_string();
-    }
-    "".to_string()
+    value.map_or("".to_string(), |v| v.to_string())
 }
 
 #[cfg(test)]
