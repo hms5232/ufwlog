@@ -230,9 +230,10 @@ const MONTH: [&str; 12] = [
 ///
 /// Returns a `u8` representing the month number (1-12)
 ///
-/// # Panics
-///
-/// Panics if the input string is not a valid month abbreviation
+/// Returns 0 if the input string is not a valid month abbreviation
 fn get_month_number(string: String) -> u8 {
-    (MONTH.iter().position(|&r| r == string.trim()).unwrap() as u8) + 1
+    match MONTH.iter().position(|&r| r == string.trim()) {
+        Some(pos) => (pos as u8) + 1,
+        None => 0,
+    }
 }

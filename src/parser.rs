@@ -16,25 +16,18 @@ use std::io::{BufRead, BufReader};
 ///
 /// # Returns
 ///
-/// Returns a `Vec<String>` containing each line from the file
-///
-/// # Panics
-///
-/// Panics if the file cannot be opened or read
-pub fn read_lines(path: &str) -> Vec<String> {
+/// Returns a `Ok(Vec<String>)` containing each line from the file
+pub fn read_lines(path: &str) -> Result<Vec<String>, std::io::Error> {
     // read log file
     let file = File::open(path);
     if file.is_err() {
-        panic!(
-            "Error occur when trying to read file: {}",
-            file.err().unwrap()
-        );
+        return Err(file.err().unwrap());
     }
 
-    BufReader::new(file.unwrap())
+    Ok(BufReader::new(file?)
         .lines()
         .map(|line| line.unwrap())
-        .collect()
+        .collect())
 }
 
 /// Split log record by space, and filter empty element(s).
@@ -133,14 +126,14 @@ fn remove_brackets(string: &str) -> String {
 }
 
 /// Get vector of UfwLog object from log file
-pub fn get_ufwlog_vec(path: &str) -> Vec<UfwLog> {
-    let log_by_line = read_lines(path);
+pub fn get_ufwlog_vec(path: &str) -> Result<Vec<UfwLog>, std::io::Error> {
+    let log_by_line = read_lines(path)?;
     // parse as UfwLog struct
     let ufw_log_vec: Vec<UfwLog> = log_by_line
         .iter()
         .map(|log| UfwLog::new(to_hashmap(log)))
         .collect();
-    ufw_log_vec
+    Ok(ufw_log_vec)
 }
 
 #[cfg(test)]
