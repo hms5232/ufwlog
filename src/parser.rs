@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::str::FromStr;
 
 /// Read file and get content line by line
 ///
@@ -37,7 +38,7 @@ pub fn split_by_space(log: &str) -> Vec<&str> {
 }
 
 /// convert log record string to hashmap
-pub fn to_hashmap(log: &String) -> HashMap<&str, String> {
+pub fn to_hashmap(log: &str) -> HashMap<&str, String> {
     let split_log = split_by_space(log);
     let mut associative = HashMap::new();
     let mut is_event_range = false; // indicate whether the current record is in event name range
@@ -132,7 +133,7 @@ pub fn get_ufwlog_vec(path: &str) -> Result<Vec<UfwLog>, ParserError> {
     // parse as UfwLog struct
     let mut ufw_log_vec: Vec<UfwLog> = vec![];
     for log in log_by_line.iter() {
-        match UfwLog::new(to_hashmap(log)) {
+        match UfwLog::from_str(log) {
             Ok(log) => ufw_log_vec.push(log),
             Err(e) => return Err(ParserError::Parse(e)),
         }

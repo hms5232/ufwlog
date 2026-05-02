@@ -276,6 +276,15 @@ impl UfwLog {
     }
 }
 
+impl std::str::FromStr for UfwLog {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let hashmap = crate::parser::to_hashmap(s);
+        UfwLog::new(hashmap)
+    }
+}
+
 /// The ufw logged event list
 #[derive(Debug, Default, PartialEq)]
 pub enum LoggedEvent {
