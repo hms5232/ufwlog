@@ -63,7 +63,7 @@ pub struct UfwLog {
 impl UfwLog {
     /// Initial a UfwLog with default value
     /// or fill data with given data.
-    pub fn new(data: HashMap<&str, String>) -> Self {
+    pub fn new(data: HashMap<&str, String>) -> Result<Self, ParseError> {
         // new a UfwLog object with default value
         let mut new = Self {
             origin: "".to_string(),
@@ -110,7 +110,7 @@ impl UfwLog {
         };
 
         if data.is_empty() {
-            return new;
+            return Ok(new);
         }
 
         // fill data
@@ -119,7 +119,12 @@ impl UfwLog {
             match lowercase_key.as_str() {
                 "origin" => new.origin = value,
                 "month" => new.month = get_month_number(value),
-                "day" => new.day = value.parse::<u8>().unwrap(),
+                "day" => {
+                    new.day = value.parse::<u8>().map_err(|_| ParseError::InvalidNumber {
+                        field: "day",
+                        value,
+                    })?
+                }
                 "time" => new.time = value,
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
@@ -129,16 +134,66 @@ impl UfwLog {
                 "mac" => new.mac = value,
                 "src" => new.src = value,
                 "dst" => new.dst = value,
-                "len" => new.len = value.parse::<u32>().unwrap(),
+                "len" => {
+                    new.len = value
+                        .parse::<u32>()
+                        .map_err(|_| ParseError::InvalidNumber {
+                            field: "len",
+                            value,
+                        })?
+                }
                 "tos" => new.tos = Some(value),
                 "prec" => new.prec = Some(value),
-                "ttl" => new.ttl = Some(value.parse::<u16>().unwrap()),
-                "id" => new.id = Some(value.parse::<u32>().unwrap()),
+                "ttl" => {
+                    new.ttl = Some(
+                        value
+                            .parse::<u16>()
+                            .map_err(|_| ParseError::InvalidNumber {
+                                field: "ttl",
+                                value,
+                            })?,
+                    )
+                }
+                "id" => {
+                    new.id = Some(
+                        value
+                            .parse::<u32>()
+                            .map_err(|_| ParseError::InvalidNumber { field: "id", value })?,
+                    )
+                }
                 "df" => new.df = value == "1",
                 "proto" => new.proto = value,
-                "spt" => new.spt = Some(value.parse::<u16>().unwrap()),
-                "dpt" => new.dpt = Some(value.parse::<u16>().unwrap()),
-                "window" => new.window = Some(value.parse::<u32>().unwrap()),
+                "spt" => {
+                    new.spt = Some(
+                        value
+                            .parse::<u16>()
+                            .map_err(|_| ParseError::InvalidNumber {
+                                field: "spt",
+                                value,
+                            })?,
+                    )
+                }
+                "dpt" => {
+                    new.dpt = Some(
+                        value
+                            .parse::<u16>()
+                            .map_err(|_| ParseError::InvalidNumber {
+                                field: "dpt",
+                                value,
+                            })?,
+                    )
+                }
+                "window" => {
+                    new.window =
+                        Some(
+                            value
+                                .parse::<u32>()
+                                .map_err(|_| ParseError::InvalidNumber {
+                                    field: "window",
+                                    value,
+                                })?,
+                        )
+                }
                 "res" => new.res = value,
                 "syn" => new.syn = value == "1",
                 "ack" => new.ack = value == "1",
@@ -154,20 +209,70 @@ impl UfwLog {
                         Some(false)
                     }
                 }
-                "tc" => new.tc = Some(value.parse::<i32>().unwrap()),
-                "hoplimit" => new.hoplimit = Some(value.parse::<u8>().unwrap()),
-                "flowlbl" => new.flowlbl = Some(value.parse::<i32>().unwrap()),
-                "type" => new.r#type = Some(value.parse::<i32>().unwrap()),
+                "tc" => {
+                    new.tc = Some(
+                        value
+                            .parse::<i32>()
+                            .map_err(|_| ParseError::InvalidNumber { field: "tc", value })?,
+                    )
+                }
+                "hoplimit" => {
+                    new.hoplimit =
+                        Some(value.parse::<u8>().map_err(|_| ParseError::InvalidNumber {
+                            field: "hoplimit",
+                            value,
+                        })?)
+                }
+                "flowlbl" => {
+                    new.flowlbl =
+                        Some(
+                            value
+                                .parse::<i32>()
+                                .map_err(|_| ParseError::InvalidNumber {
+                                    field: "flowlbl",
+                                    value,
+                                })?,
+                        )
+                }
+                "type" => {
+                    new.r#type =
+                        Some(
+                            value
+                                .parse::<i32>()
+                                .map_err(|_| ParseError::InvalidNumber {
+                                    field: "type",
+                                    value,
+                                })?,
+                        )
+                }
                 "code" => new.code = Some(value),
-                "seq" => new.seq = Some(value.parse::<u32>().unwrap()),
-                "mtu" => new.mtu = Some(value.parse::<u16>().unwrap()),
+                "seq" => {
+                    new.seq = Some(
+                        value
+                            .parse::<u32>()
+                            .map_err(|_| ParseError::InvalidNumber {
+                                field: "seq",
+                                value,
+                            })?,
+                    )
+                }
+                "mtu" => {
+                    new.mtu = Some(
+                        value
+                            .parse::<u16>()
+                            .map_err(|_| ParseError::InvalidNumber {
+                                field: "mtu",
+                                value,
+                            })?,
+                    )
+                }
                 "mark" => new.mark = Some(value),
                 "physin" => new.physin = Some(value),
                 "phyout" => new.phyout = Some(value),
                 _ => (),
             }
         }
-        new
+        Ok(new)
     }
 }
 
@@ -237,3 +342,31 @@ fn get_month_number(string: String) -> u8 {
         None => 0,
     }
 }
+
+/// Error type for parsing log content into UfwLog
+#[derive(Debug)]
+pub enum ParseError {
+    InvalidNumber {
+        field: &'static str,
+        value: String,
+    },
+    InvalidFormat {
+        field: &'static str,
+        description: String,
+    },
+}
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            ParseError::InvalidNumber { field, value } => {
+                write!(f, "Invalid number for field '{field}': '{value}'")
+            }
+            ParseError::InvalidFormat { field, description } => {
+                write!(f, "Invalid format for field '{field}': {description}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for ParseError {}
