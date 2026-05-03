@@ -1,3 +1,5 @@
+use clap::ValueEnum;
+
 pub mod csv;
 
 #[derive(Debug)]
@@ -16,6 +18,20 @@ impl Config {
         Self {
             output_filename: filename,
             overwrite,
+        }
+    }
+}
+
+/// Export format that CLI support
+#[derive(ValueEnum, Debug, Clone, PartialEq)]
+pub(crate) enum ExportFormat {
+    Csv,
+}
+
+impl From<ExportFormat> for ufwlog::ExportFormat {
+    fn from(value: ExportFormat) -> Self {
+        match value {
+            ExportFormat::Csv => ufwlog::ExportFormat::Csv,
         }
     }
 }

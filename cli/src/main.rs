@@ -1,6 +1,7 @@
 mod export;
 mod parser;
 
+use crate::export::ExportFormat;
 use clap::{CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::generate;
 
@@ -18,7 +19,7 @@ fn main() {
         }) => {
             // export with specific format
             match *format {
-                Some(ufwlog::ExportFormat::Csv) => export::csv::convert(
+                Some(ExportFormat::Csv) => export::csv::convert(
                     parser::get_ufwlog_vec(cli.log_path.clone().unwrap().as_str()),
                     export::Config::new(output_filename, *overwrite),
                 )
@@ -76,7 +77,7 @@ enum SubCommands {
     Export {
         /// Which type to be export.
         #[arg(default_value = "csv")]
-        format: Option<ufwlog::ExportFormat>,
+        format: Option<ExportFormat>,
 
         /// Specify output path and filename.
         #[arg(

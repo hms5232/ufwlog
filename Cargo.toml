@@ -7,10 +7,8 @@ description = "A program to parse, format and export ufw log."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.5.4", features = ["derive"] , optional = true}
 
 [features]
-cli = ["dep:clap"]
 
 [lib]
 name = "ufwlog"
