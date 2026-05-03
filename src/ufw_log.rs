@@ -202,13 +202,7 @@ impl UfwLog {
                 "psh" => new.psh = value == "1",
                 "cwr" => new.cwr = value == "1",
                 "ece" => new.ece = value == "1",
-                "urgp" => {
-                    new.urgp = if value == "1" {
-                        Some(true)
-                    } else {
-                        Some(false)
-                    }
-                }
+                "urgp" => new.urgp = Some(value == "1"),
                 "tc" => {
                     new.tc = Some(
                         value
