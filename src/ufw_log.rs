@@ -10,44 +10,76 @@ use std::fmt::{Display, Formatter};
 /// * https://unix.stackexchange.com/a/702909
 #[derive(Debug)]
 pub struct UfwLog {
+    /// origin content of log
     pub origin: String,
 
+    /// month of log record, 1-12
     pub month: u8,
+    /// day of log record, 1-31
     pub day: u8,
+    /// time of log record, format: "HH:MM:SS"
     pub time: String,
+    /// The server's hostname
     pub hostname: String,
+    /// The time in seconds since boot.
     pub uptime: String,
+    /// Short description of logged event
     pub event: LoggedEvent,
 
+    /// If set, then the event was an incoming event.
     pub r#in: String,
+    /// If set, then the event was an outgoing event.
     pub out: String,
+    /// a 14-byte combination of the Destination MAC, Source MAC, and EtherType fields, following the order found in the Ethernet II header.
     pub mac: String,
+    /// source IP
     pub src: String,
+    /// destination IP
     pub dst: String,
+    /// length of packet
     pub len: u32,
-    pub tos: Option<String>, // type of service
+    /// type of service
+    pub tos: Option<String>,
     pub prec: Option<String>,
+    /// time to live
     pub ttl: Option<u16>,
     pub id: Option<u32>,
-    pub df: bool, // don't fragment
+    /// don't fragment
+    pub df: bool,
+    /// protocol
     pub proto: String,
-    pub spt: Option<u16>,    // source port
-    pub dpt: Option<u16>,    // detestation port
-    pub window: Option<u32>, // the size of packet the sender is willing to receive
+    /// source port
+    pub spt: Option<u16>,
+    /// detestation port
+    pub dpt: Option<u16>,
+    /// the size of packet the sender is willing to receive
+    pub window: Option<u32>,
     pub res: String,
 
-    // control bits / flag
+    // TCP control bits / flag
+    /// synchronization
     pub syn: bool,
+    /// acknowledgment
     pub ack: bool,
+    /// last package from sender
     pub fin: bool,
+    /// Reset the connection
     pub rst: bool,
+    /// push function
     pub psh: bool,
+    /// Congestion window reduced
     pub cwr: bool,
+    /// ECN-Echo
     pub ece: bool,
-    pub urgp: Option<bool>, // Indicates whether the urgent pointer field is relevant. 0 means it's not. Therefore, we convert it to Option<bool>.
+    /// Indicates whether the urgent pointer field is significant.
+    ///
+    /// 0 means it's not.
+    pub urgp: Option<bool>,
 
-    pub tc: Option<i32>,      // TODO: type check need
-    pub hoplimit: Option<u8>, // hop limit
+    pub tc: Option<i32>, // TODO: type check need
+    /// hop limit
+    pub hoplimit: Option<u8>,
+    /// flow label
     pub flowlbl: Option<i32>, // TODO: type need check
     pub r#type: Option<i32>,  // TODO: type need check
     pub code: Option<String>, // TODO: type check need
