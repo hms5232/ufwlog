@@ -1,6 +1,6 @@
 [package]
 name = "ufwlog"
-version = "0.2.1"
+version.workspace = true
 edition.workspace = true
 description = "A program to parse, format and export ufw log."
 
@@ -21,6 +21,7 @@ members = [
 default-members = ["cli"]
 
 [workspace.package]
+version = "0.2.1"
 edition = "2021"
 authors = ["hms5232 <hms5232@hhming.moe>"]
 license = "MPL-2"
