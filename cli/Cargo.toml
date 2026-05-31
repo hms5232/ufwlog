@@ -6,6 +6,8 @@ description = "A CLI to parse, format and export ufw log."
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+keywords = ["ufw", "log", "cli"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }

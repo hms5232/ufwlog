@@ -2,7 +2,12 @@
 name = "ufwlog"
 version.workspace = true
 edition.workspace = true
-description = "A program to parse, format and export ufw log."
+description = "A library to parse, format and export ufw log."
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["ufw", "log"]
+categories = ["parser-implementations"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
