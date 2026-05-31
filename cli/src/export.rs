@@ -28,10 +28,10 @@ pub(crate) enum ExportFormat {
     Csv,
 }
 
-impl From<ExportFormat> for ufwlog::ExportFormat {
+impl From<ExportFormat> for ufwlog::export::Format {
     fn from(value: ExportFormat) -> Self {
         match value {
-            ExportFormat::Csv => ufwlog::ExportFormat::Csv,
+            ExportFormat::Csv => ufwlog::export::Format::Csv,
         }
     }
 }

@@ -11,7 +11,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
         return Err("Please specify a file name.".into());
     }
     if path.extension().is_none() {
-        path.set_extension(ufwlog::ExportFormat::Csv.get_extension());
+        path.set_extension(ufwlog::export::Format::Csv.get_extension());
     };
     // if the file exists, return error
     if path.exists() && !config.overwrite {
@@ -23,7 +23,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
     }
 
     let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
-    wtr.write_record(ufwlog::CSV_HEADER)
+    wtr.write_record(ufwlog::export::csv::HEADER)
         .expect("Write failed when try to insert header row.");
 
     let pb = ProgressBar::new(logs.len() as u64);

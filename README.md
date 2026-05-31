@@ -12,16 +12,16 @@ See [here](./cli/README.md).
 ```rust
 fn main() {
     // input log path then get a vec contains UfwLog struct
-    let logs = ufwlog::parser::get_ufwlog_vec("./ufw.log");
+    let logs = ufwlog::parser::get_ufwlog_vec("./ufw.log").unwrap();
     // filter record
     let filtered = logs
         .iter()
         .filter(|log| log.event == ufwlog::LoggedEvent::Block) // only block event
         .filter(|log| log.src == "127.0.0.1") // package from 127.0.0.1
-        .collect::<Vec<_>>();
+        .collect::<Vec<&ufwlog::UfwLog>>();
     
     // export to csv file
-    let csv_header = ufwlog::CSV_HEADER;
+    let csv_header = ufwlog::export::csv::HEADER;
     // write header row here
     for log in filtered {
         let row = log.to_csv_vec();
