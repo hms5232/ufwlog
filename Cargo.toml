@@ -29,5 +29,5 @@ default-members = ["cli"]
 version = "0.3.0-beta.1"
 edition = "2021"
 authors = ["hms5232 <hms5232@hhming.moe>"]
-license = "MPL-2"
+license = "MPL-2.0"
 repository = "https://github.com/hms5232/ufwlog"
