@@ -1,13 +1,18 @@
 # ufwlog
+
+[![Crates.io Version](https://img.shields.io/crates/v/ufwlog?style=flat-square)](https://crates.io/crates/ufwlog)
+
 A program to parse, format and export ufw log.
 
+> Please see [here](./cli/README.md) for CLI README. 
+
+## Installation
+
+```shell
+cargo install ufwlog
+```
+
 ## Usage
-
-### CLI
-
-See [here](./cli/README.md).
-
-### Library crate
 
 ```rust
 fn main() {
@@ -41,7 +46,7 @@ You can de-identification original log content, but keep type. Otherwise, it wil
 
 ## Developing
 
-```
+```shell
 cargo fmt
 cargo clippy
 ```
