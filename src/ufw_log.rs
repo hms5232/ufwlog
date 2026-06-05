@@ -10,9 +10,6 @@ use std::fmt::{Display, Formatter};
 /// * https://unix.stackexchange.com/a/702909
 #[derive(Debug)]
 pub struct UfwLog {
-    /// origin content of log
-    pub origin: String,
-
     /// month of log record, 1-12
     pub month: u8,
     /// day of log record, 1-31
@@ -90,6 +87,9 @@ pub struct UfwLog {
     // unconfirmed
     pub physin: Option<String>,
     pub phyout: Option<String>,
+
+    /// origin content of log
+    origin: String,
 }
 
 impl UfwLog {
@@ -312,6 +312,27 @@ impl UfwLog {
     /// Returns an error if the log file cannot be read or parsed.
     pub fn from_file(path: &str) -> Result<Vec<UfwLog>, crate::parser::ParserError> {
         crate::parser::get_ufwlog_vec(path)
+    }
+
+    /// Get origin content of log
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::str::FromStr;
+    /// use ufwlog::UfwLog;
+    ///
+    /// // original log content
+    /// let log_str = "Jan 16 02:13:52 103213020 kernel: [3601090.569259] [UFW AUDIT] IN= OUT=lo SRC=127.0.0.1 DST=127.0.0.1 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=33539 DF PROTO=ICMP TYPE=8 CODE=0 ID=10289 SEQ=1";
+    ///
+    /// // make an UfwLog struct
+    /// let log: UfwLog = UfwLog::from_str(log_str).unwrap();
+    ///
+    /// // By calling the get_origin method, it will return the original log content
+    /// assert_eq!(log_str, log.get_origin())
+    /// ```
+    pub fn get_origin(&self) -> &str {
+        &self.origin
     }
 }
 

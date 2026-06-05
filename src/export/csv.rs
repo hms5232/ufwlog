@@ -116,7 +116,7 @@ impl UfwLog {
         row.push(unwrap_or_empty_then_to_string(self.mark.clone()));
         row.push(unwrap_or_empty_then_to_string(self.physin.clone()));
         row.push(unwrap_or_empty_then_to_string(self.phyout.clone()));
-        row.push(self.origin.clone());
+        row.push(self.get_origin().to_string());
 
         row
     }
