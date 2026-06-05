@@ -300,14 +300,27 @@ impl UfwLog {
         }
         Ok(new)
     }
+
+    /// Read log file and get vector of UfwLog
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to log file
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the log file cannot be read or parsed.
+    pub fn from_file(path: &str) -> Result<Vec<UfwLog>, crate::parser::ParserError> {
+        crate::parser::get_ufwlog_vec(path)
+    }
 }
 
 impl std::str::FromStr for UfwLog {
     type Err = ParseError;
 
+    /// Parse log string and try to convert to UfwLog struct
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let hashmap = crate::parser::to_hashmap(s);
-        UfwLog::new(hashmap)
+        UfwLog::new(crate::parser::to_hashmap(s))
     }
 }
 

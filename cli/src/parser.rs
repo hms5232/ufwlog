@@ -25,7 +25,7 @@ pub fn get_ufwlog_vec(path: &str) -> Vec<UfwLog> {
     pb.set_message("Parsing...");
 
     // parse as UfwLog struct
-    let ufw_log_vec = ufwlog::parser::get_ufwlog_vec(path);
+    let ufw_log_vec = UfwLog::from_file(path);
     if ufw_log_vec.is_err() {
         panic!(
             "Error occur when trying to read file: {}",

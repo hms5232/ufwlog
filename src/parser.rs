@@ -128,6 +128,14 @@ fn remove_brackets(string: &str) -> String {
 }
 
 /// Get vector of UfwLog object from log file
+///
+/// # Arguments
+///
+/// * `path` - Path to log file
+///
+/// # Errors
+///
+/// Returns an error if the log file cannot be read or parsed.
 pub fn get_ufwlog_vec(path: &str) -> Result<Vec<UfwLog>, ParserError> {
     let log_by_line = read_lines(path)?;
     // parse as UfwLog struct

@@ -17,7 +17,7 @@ cargo install ufwlog
 ```rust
 fn main() {
     // input log path then get a vec contains UfwLog struct
-    let logs = ufwlog::parser::get_ufwlog_vec("./ufw.log").unwrap();
+    let logs: Vec<ufwlog::UfwLog> = ufwlog::Ufwlog::from_file("./ufw.log").unwrap();
     // filter record
     let filtered = logs
         .iter()
