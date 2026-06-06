@@ -24,12 +24,13 @@ fn main() {
         .filter(|log| log.event == ufwlog::LoggedEvent::Block) // only block event
         .filter(|log| log.src == "127.0.0.1") // package from 127.0.0.1
         .collect::<Vec<&ufwlog::UfwLog>>();
-    
+
     // export to csv file
-    let csv_header = ufwlog::export::csv::HEADER;
+    let csv_exporter = ufwlog::export::csv::Exporter;
+    let csv_header = csv_exporter.get_header();
     // write header row here
     for log in filtered {
-        let row = log.to_csv_vec();
+        let row = csv_exporter.get_vec(&log);
         // write row here
     }
     // save csv file here

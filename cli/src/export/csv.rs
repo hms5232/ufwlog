@@ -2,16 +2,18 @@ use crate::export::Config;
 use indicatif::ProgressBar;
 use std::error::Error;
 use std::path::PathBuf;
+use ufwlog::export::Export;
 use ufwlog::UfwLog;
 
 pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> {
+    let exporter = ufwlog::export::csv::Exporter;
     // resolve file path and name
     let mut path = PathBuf::from(config.output_filename);
     if path.file_name().is_none() {
         return Err("Please specify a file name.".into());
     }
     if path.extension().is_none() {
-        path.set_extension(ufwlog::export::Format::Csv.get_extension());
+        path.set_extension(exporter.get_extension());
     };
     // if the file exists, return error
     if path.exists() && !config.overwrite {
@@ -23,12 +25,12 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
     }
 
     let mut wtr = csv::Writer::from_path(path.to_str().unwrap())?;
-    wtr.write_record(ufwlog::export::csv::HEADER)
+    wtr.write_record(exporter.get_header())
         .expect("Write failed when try to insert header row.");
 
     let pb = ProgressBar::new(logs.len() as u64);
     for i in logs {
-        let row = i.to_csv_vec();
+        let row = exporter.get_vec(&i);
 
         wtr.write_record(row).expect("Write csv file occur error");
 

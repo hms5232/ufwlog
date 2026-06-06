@@ -1,6 +1,9 @@
+use crate::parser::ParserError;
 use crate::ufw_log::UfwLog;
 
 /// csv header
+///
+/// Recommend use [get_header()](Exporter::get_header) to get it.
 pub const HEADER: [&str; 35] = [
     "Month",
     "Day",
@@ -39,64 +42,110 @@ pub const HEADER: [&str; 35] = [
     "origin",
 ];
 
-impl UfwLog {
-    /// Get a vector for csv order.
-    pub fn to_csv_vec(&self) -> Vec<String> {
+/// Exporter for csv format
+pub struct Exporter;
+
+impl super::Export for Exporter {
+    fn get_extension(&self) -> &'static str {
+        "csv"
+    }
+
+    fn convert(&self, log: &UfwLog) -> Result<String, ParserError> {
+        Ok(self.get_vec(log).join(",").to_string())
+    }
+
+    /// Converts multiple log entries into formatted strings.
+    ///
+    /// the return will not contain header row.
+    fn convert_vec(&self, log: &[UfwLog]) -> Result<Vec<String>, ParserError> {
+        log.iter().map(|log| self.convert(log)).collect()
+    }
+
+    /// Converts multiple log entries into a complete, file-ready output.
+    ///
+    /// Unlike [convert_vec()](self::Exporter::convert_vec), the output include CSV header row.
+    fn export(&self, log: &[UfwLog]) -> Result<Vec<String>, ParserError> {
+        let result = self.convert_vec(log);
+        match result {
+            Ok(mut rows) => {
+                rows.insert(0, self.get_header().join(",")); // insert header
+                Ok(rows)
+            }
+            Err(e) => Err(e),
+        }
+    }
+}
+
+impl Exporter {
+    /// Get the header of output csv
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let export = ufwlog::export::csv::Exporter;
+    /// assert_eq!(export.get_header(), ["Month", "Day", "Time", "hostname", "uptime", "event", "IN", "OUT", "MAC", "SRC", "DST", "LEN", "TOS", "PREC", "TTL", "ID", "DF", "PROTO", "SPT", "DPT", "WINDOW", "RES", "Control Bits / flags", "URGP", "TC", "HOPLIMIT", "FLOWLBL", "TYPE", "CODE", "SEQ", "MTU", "MARK", "PHYSIN", "PHYOUT", "origin"])
+    /// ```
+    pub fn get_header(&self) -> [&'static str; 35] {
+        HEADER
+    }
+
+    /// Get a vector of strings that represent a log in csv format order
+    pub fn get_vec(&self, log: &UfwLog) -> Vec<String> {
         let mut row = vec![];
 
         // control bits / flags
         let mut flags = vec![];
-        if self.syn {
+        if log.syn {
             flags.push("SYN");
         }
-        if self.ack {
+        if log.ack {
             flags.push("ACK");
         }
-        if self.fin {
+        if log.fin {
             flags.push("FIN");
         }
-        if self.rst {
+        if log.rst {
             flags.push("RST");
         }
-        if self.psh {
+        if log.psh {
             flags.push("PSH");
         }
-        if self.cwr {
+        if log.cwr {
             flags.push("CWR");
         }
 
         // should push by "HEADER" order
-        row.push(self.month.to_string());
-        row.push(self.day.to_string());
-        row.push(self.time.clone());
-        row.push(self.hostname.clone());
-        row.push(self.uptime.clone());
-        row.push(self.event.to_string());
-        row.push(self.r#in.clone());
-        row.push(self.out.clone());
-        row.push(self.mac.clone());
-        row.push(self.src.clone());
-        row.push(self.dst.clone());
-        row.push(self.len.to_string());
-        row.push(self.tos.clone().unwrap_or("".to_string()));
-        row.push(self.prec.clone().unwrap_or("".to_string()));
-        row.push(unwrap_or_empty_then_to_string(self.ttl));
-        row.push(unwrap_or_empty_then_to_string(self.id));
-        row.push(if self.df {
+        row.push(log.month.to_string());
+        row.push(log.day.to_string());
+        row.push(log.time.clone());
+        row.push(log.hostname.clone());
+        row.push(log.uptime.clone());
+        row.push(log.event.to_string());
+        row.push(log.r#in.clone());
+        row.push(log.out.clone());
+        row.push(log.mac.clone());
+        row.push(log.src.clone());
+        row.push(log.dst.clone());
+        row.push(log.len.to_string());
+        row.push(log.tos.clone().unwrap_or("".to_string()));
+        row.push(log.prec.clone().unwrap_or("".to_string()));
+        row.push(unwrap_or_empty_then_to_string(log.ttl));
+        row.push(unwrap_or_empty_then_to_string(log.id));
+        row.push(if log.df {
             "DF".to_string()
         } else {
             "".to_string()
         });
-        row.push(self.proto.clone());
-        row.push(unwrap_or_empty_then_to_string(self.spt));
-        row.push(unwrap_or_empty_then_to_string(self.dpt));
-        row.push(unwrap_or_empty_then_to_string(self.window));
-        row.push(self.res.clone());
+        row.push(log.proto.clone());
+        row.push(unwrap_or_empty_then_to_string(log.spt));
+        row.push(unwrap_or_empty_then_to_string(log.dpt));
+        row.push(unwrap_or_empty_then_to_string(log.window));
+        row.push(log.res.clone());
         row.push(flags.join(" "));
         row.push(
             // The value follows the flag, so it is empty when it does not appear, and it depends on the record value when it appears
-            if self.urgp.is_some() {
-                if self.urgp.unwrap() {
+            if log.urgp.is_some() {
+                if log.urgp.unwrap() {
                     "1"
                 } else {
                     "0"
@@ -106,17 +155,17 @@ impl UfwLog {
             }
             .to_string(),
         );
-        row.push(unwrap_or_empty_then_to_string(self.tc));
-        row.push(unwrap_or_empty_then_to_string(self.hoplimit));
-        row.push(unwrap_or_empty_then_to_string(self.flowlbl));
-        row.push(unwrap_or_empty_then_to_string(self.r#type));
-        row.push(unwrap_or_empty_then_to_string(self.code.clone()));
-        row.push(unwrap_or_empty_then_to_string(self.seq));
-        row.push(unwrap_or_empty_then_to_string(self.mtu));
-        row.push(unwrap_or_empty_then_to_string(self.mark.clone()));
-        row.push(unwrap_or_empty_then_to_string(self.physin.clone()));
-        row.push(unwrap_or_empty_then_to_string(self.phyout.clone()));
-        row.push(self.get_origin().to_string());
+        row.push(unwrap_or_empty_then_to_string(log.tc));
+        row.push(unwrap_or_empty_then_to_string(log.hoplimit));
+        row.push(unwrap_or_empty_then_to_string(log.flowlbl));
+        row.push(unwrap_or_empty_then_to_string(log.r#type));
+        row.push(unwrap_or_empty_then_to_string(log.code.clone()));
+        row.push(unwrap_or_empty_then_to_string(log.seq));
+        row.push(unwrap_or_empty_then_to_string(log.mtu));
+        row.push(unwrap_or_empty_then_to_string(log.mark.clone()));
+        row.push(unwrap_or_empty_then_to_string(log.physin.clone()));
+        row.push(unwrap_or_empty_then_to_string(log.phyout.clone()));
+        row.push(log.get_origin().to_string());
 
         row
     }
