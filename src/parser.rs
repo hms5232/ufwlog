@@ -1,8 +1,8 @@
 //! A parser for ufw log file.
 
-use crate::ufw_log::{ParseError as UfwLogParseError, UfwLog};
+use crate::error::Error;
+use crate::ufw_log::UfwLog;
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::str::FromStr;
@@ -136,45 +136,17 @@ fn remove_brackets(string: &str) -> String {
 /// # Errors
 ///
 /// Returns an error if the log file cannot be read or parsed.
-pub fn get_ufwlog_vec(path: &str) -> Result<Vec<UfwLog>, ParserError> {
+pub fn get_ufwlog_vec(path: &str) -> Result<Vec<UfwLog>, Error> {
     let log_by_line = read_lines(path)?;
     // parse as UfwLog struct
     let mut ufw_log_vec: Vec<UfwLog> = vec![];
     for log in log_by_line.iter() {
         match UfwLog::from_str(log) {
             Ok(log) => ufw_log_vec.push(log),
-            Err(e) => return Err(ParserError::Parse(e)),
+            Err(e) => return Err(e),
         }
     }
     Ok(ufw_log_vec)
-}
-
-/// Error type for parser
-#[derive(Debug)]
-pub enum ParserError {
-    Io(std::io::Error),
-    Parse(UfwLogParseError),
-}
-
-impl From<std::io::Error> for ParserError {
-    fn from(err: std::io::Error) -> Self {
-        ParserError::Io(err)
-    }
-}
-
-impl From<UfwLogParseError> for ParserError {
-    fn from(err: UfwLogParseError) -> Self {
-        ParserError::Parse(err)
-    }
-}
-
-impl Display for ParserError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ParserError::Io(e) => write!(f, "IO error: {}", e),
-            ParserError::Parse(e) => write!(f, "Parse error: {}", e),
-        }
-    }
 }
 
 #[cfg(test)]

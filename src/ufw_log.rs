@@ -1,3 +1,4 @@
+use crate::error::Error;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
@@ -95,7 +96,7 @@ pub struct UfwLog {
 impl UfwLog {
     /// Initial a UfwLog with default value
     /// or fill data with given data.
-    pub fn new(data: HashMap<&str, String>) -> Result<Self, ParseError> {
+    pub fn new(data: HashMap<&str, String>) -> Result<Self, Error> {
         // new a UfwLog object with default value
         let mut new = Self {
             origin: "".to_string(),
@@ -310,7 +311,7 @@ impl UfwLog {
     /// # Errors
     ///
     /// Returns an error if the log file cannot be read or parsed.
-    pub fn from_file(path: &str) -> Result<Vec<UfwLog>, crate::parser::ParserError> {
+    pub fn from_file(path: &str) -> Result<Vec<UfwLog>, Error> {
         crate::parser::get_ufwlog_vec(path)
     }
 
@@ -337,7 +338,7 @@ impl UfwLog {
 }
 
 impl std::str::FromStr for UfwLog {
-    type Err = ParseError;
+    type Err = Error;
 
     /// Parse log string and try to convert to UfwLog struct
     fn from_str(s: &str) -> Result<Self, Self::Err> {

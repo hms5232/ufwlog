@@ -2,6 +2,7 @@
 //!
 //! A library for parsing UFW (Uncomplicated Firewall) log files.
 
+pub mod error;
 pub mod export;
 mod parser;
 mod ufw_log;

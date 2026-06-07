@@ -1,4 +1,4 @@
-use crate::parser::ParserError;
+use crate::error::Error;
 use crate::ufw_log::UfwLog;
 
 /// csv header
@@ -50,29 +50,24 @@ impl super::Export for Exporter {
         "csv"
     }
 
-    fn convert(&self, log: &UfwLog) -> Result<String, ParserError> {
+    fn convert(&self, log: &UfwLog) -> Result<String, Error> {
         Ok(self.get_vec(log).join(",").to_string())
     }
 
     /// Converts multiple log entries into formatted strings.
     ///
     /// the return will not contain header row.
-    fn convert_vec(&self, log: &[UfwLog]) -> Result<Vec<String>, ParserError> {
+    fn convert_vec(&self, log: &[UfwLog]) -> Result<Vec<String>, Error> {
         log.iter().map(|log| self.convert(log)).collect()
     }
 
     /// Converts multiple log entries into a complete, file-ready output.
     ///
     /// Unlike [convert_vec()](self::Exporter::convert_vec), the output include CSV header row.
-    fn export(&self, log: &[UfwLog]) -> Result<Vec<String>, ParserError> {
-        let result = self.convert_vec(log);
-        match result {
-            Ok(mut rows) => {
-                rows.insert(0, self.get_header().join(",")); // insert header
-                Ok(rows)
-            }
-            Err(e) => Err(e),
-        }
+    fn export(&self, log: &[UfwLog]) -> Result<Vec<String>, Error> {
+        let mut rows = self.convert_vec(log)?;
+        rows.insert(0, self.get_header().join(",")); // insert header
+        Ok(rows)
     }
 }
 
