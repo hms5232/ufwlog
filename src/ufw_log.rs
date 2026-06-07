@@ -94,11 +94,9 @@ pub struct UfwLog {
 }
 
 impl UfwLog {
-    /// fill data with given data.
-    pub fn from_hashmap(data: HashMap<&str, String>) -> Result<Self, Error> {
-        // new a UfwLog object with default value
-        let mut new = Self {
-            origin: "".to_string(),
+    /// Initial a UfwLog with default value
+    fn new() -> Self {
+        Self {
             month: 0,
             day: 0,
             time: "".to_string(),
@@ -139,7 +137,50 @@ impl UfwLog {
             mark: None,
             physin: None,
             phyout: None,
-        };
+            origin: "".to_string(),
+        }
+    }
+
+    /// fill data with given data.
+    /// If the data is empty, return a new UfwLog object with default value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::collections::HashMap;
+    /// use ufwlog::UfwLog;
+    ///
+    /// let mut hashmap: HashMap<&str, String> = HashMap::new();
+    /// hashmap.insert("month", String::from("Jan"));
+    /// hashmap.insert("day", String::from("1"));
+    ///
+    /// let log: UfwLog = UfwLog::from_hashmap(hashmap).unwrap();
+    ///
+    /// // filled data
+    /// assert_eq!(log.month, 1);
+    /// assert_eq!(log.day, 1);
+    /// // not given so default value
+    /// assert_eq!(log.time, "");
+    /// assert_eq!(log.get_origin(), "");
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the data is invalid.
+    ///
+    /// ```rust
+    /// use std::collections::HashMap;
+    /// use ufwlog::UfwLog;
+    ///
+    /// let mut hashmap: HashMap<&str, String> = HashMap::new();
+    /// hashmap.insert("day", String::from("365"));
+    ///
+    /// let result = UfwLog::from_hashmap(hashmap);
+    /// assert!(result.is_err());
+    /// ```
+    pub fn from_hashmap(data: HashMap<&str, String>) -> Result<Self, Error> {
+        // new a UfwLog object with default value
+        let mut new = Self::new();
 
         if data.is_empty() {
             return Ok(new);
