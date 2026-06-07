@@ -30,7 +30,7 @@ pub fn convert(logs: Vec<UfwLog>, config: Config) -> Result<(), Box<dyn Error>> 
 
     let pb = ProgressBar::new(logs.len() as u64);
     for i in logs {
-        let row = exporter.get_vec(&i);
+        let row = exporter.get_csv_row(&i);
 
         wtr.write_record(row).expect("Write csv file occur error");
 

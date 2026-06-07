@@ -51,7 +51,7 @@ impl super::Export for Exporter {
     }
 
     fn convert(&self, log: &UfwLog) -> Result<String, Error> {
-        Ok(self.get_vec(log).join(",").to_string())
+        Ok(self.get_csv_row(log).join(",").to_string())
     }
 
     /// Converts multiple log entries into formatted strings.
@@ -85,7 +85,7 @@ impl Exporter {
     }
 
     /// Get a vector of strings that represent a log in csv format order
-    pub fn get_vec(&self, log: &UfwLog) -> Vec<String> {
+    pub fn get_csv_row(&self, log: &UfwLog) -> Vec<String> {
         let mut row = vec![];
 
         // control bits / flags

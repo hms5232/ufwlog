@@ -30,7 +30,7 @@ fn main() {
     let csv_header = csv_exporter.get_header();
     // write header row here
     for log in filtered {
-        let row = csv_exporter.get_vec(&log);
+        let row = csv_exporter.get_csv_row(&log);
         // write row here
     }
     // save csv file here

@@ -94,9 +94,8 @@ pub struct UfwLog {
 }
 
 impl UfwLog {
-    /// Initial a UfwLog with default value
-    /// or fill data with given data.
-    pub fn new(data: HashMap<&str, String>) -> Result<Self, Error> {
+    /// fill data with given data.
+    pub fn from_hashmap(data: HashMap<&str, String>) -> Result<Self, Error> {
         // new a UfwLog object with default value
         let mut new = Self {
             origin: "".to_string(),
@@ -342,7 +341,7 @@ impl std::str::FromStr for UfwLog {
 
     /// Parse log string and try to convert to UfwLog struct
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        UfwLog::new(crate::parser::to_hashmap(s))
+        UfwLog::from_hashmap(crate::parser::to_hashmap(s))
     }
 }
 
