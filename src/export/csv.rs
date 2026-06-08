@@ -1,5 +1,6 @@
 use crate::error::Error;
 use crate::ufw_log::UfwLog;
+use std::io::Write;
 
 /// csv header
 ///
@@ -54,20 +55,15 @@ impl super::Export for Exporter {
         Ok(self.get_csv_row(log).join(",").to_string())
     }
 
-    /// Converts multiple log entries into formatted strings.
-    ///
-    /// the return will not contain header row.
-    fn convert_vec(&self, log: &[UfwLog]) -> Result<Vec<String>, Error> {
-        log.iter().map(|log| self.convert(log)).collect()
-    }
-
-    /// Converts multiple log entries into a complete, file-ready output.
-    ///
-    /// Unlike [convert_vec()](self::Exporter::convert_vec), the output include CSV header row.
-    fn export(&self, log: &[UfwLog]) -> Result<Vec<String>, Error> {
-        let mut rows = self.convert_vec(log)?;
-        rows.insert(0, self.get_header().join(",")); // insert header
-        Ok(rows)
+    fn export(&self, logs: &[UfwLog], writer: &mut dyn Write) -> Result<(), Error> {
+        writeln!(writer, "{}", self.get_header().join(","))?;
+        for log in logs {
+            match self.convert(log) {
+                Ok(c) => writeln!(writer, "{}", c)?,
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(writer.flush()?)
     }
 }
 

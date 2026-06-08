@@ -27,13 +27,7 @@ fn main() {
 
     // export to csv file
     let csv_exporter = ufwlog::export::csv::Exporter;
-    let csv_header = csv_exporter.get_header();
-    // write header row here
-    for log in filtered {
-        let row = csv_exporter.get_csv_row(&log);
-        // write row here
-    }
-    // save csv file here
+    csv_exporter.export(filtered,  &mut std::io::stdout()); // print csv content to stdout
 }
 ```
 
