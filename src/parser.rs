@@ -5,6 +5,7 @@ use crate::ufw_log::UfwLog;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::path::Path;
 use std::str::FromStr;
 
 /// Read file and get content line by line
@@ -19,7 +20,7 @@ use std::str::FromStr;
 /// # Returns
 ///
 /// Returns a `Ok(Vec<String>)` containing each line from the file
-pub fn read_lines(path: &str) -> Result<Vec<String>, std::io::Error> {
+pub fn read_lines(path: impl AsRef<Path>) -> Result<Vec<String>, std::io::Error> {
     // read log file
     let file = File::open(path);
     if file.is_err() {
@@ -136,7 +137,7 @@ fn remove_brackets(string: &str) -> String {
 /// # Errors
 ///
 /// Returns an error if the log file cannot be read or parsed.
-pub fn get_ufwlog_vec(path: &str) -> Result<Vec<UfwLog>, Error> {
+pub fn get_ufwlog_vec(path: impl AsRef<Path>) -> Result<Vec<UfwLog>, Error> {
     let log_by_line = read_lines(path)?;
     // parse as UfwLog struct
     let mut ufw_log_vec: Vec<UfwLog> = vec![];

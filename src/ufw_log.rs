@@ -1,6 +1,7 @@
 use crate::error::Error;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use std::path::Path;
 
 /// An ufw log
 ///
@@ -351,7 +352,7 @@ impl UfwLog {
     /// # Errors
     ///
     /// Returns an error if the log file cannot be read or parsed.
-    pub fn from_file(path: &str) -> Result<Vec<UfwLog>, Error> {
+    pub fn from_file(path: impl AsRef<Path>) -> Result<Vec<UfwLog>, Error> {
         crate::parser::get_ufwlog_vec(path)
     }
 
