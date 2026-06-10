@@ -20,17 +20,17 @@ use std::str::FromStr;
 /// # Returns
 ///
 /// Returns a `Ok(Vec<String>)` containing each line from the file
-pub fn read_lines(path: impl AsRef<Path>) -> Result<Vec<String>, std::io::Error> {
+pub fn read_lines(path: impl AsRef<Path>) -> Result<Vec<String>, Error> {
     // read log file
     let file = File::open(path);
     if file.is_err() {
-        return Err(file.err().unwrap());
+        return Err(Error::from(file.err().unwrap()));
     }
 
-    Ok(BufReader::new(file?)
+    BufReader::new(file?)
         .lines()
-        .map(|line| line.unwrap())
-        .collect())
+        .map(|line| line.map_err(Error::from))
+        .collect::<Result<Vec<String>, Error>>()
 }
 
 /// Split log record by space, and filter empty element(s).
