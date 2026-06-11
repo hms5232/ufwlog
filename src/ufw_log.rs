@@ -1,7 +1,9 @@
 use crate::error::Error;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use std::io;
 use std::path::Path;
+use std::str::FromStr;
 
 /// An ufw log
 ///
@@ -345,6 +347,9 @@ impl UfwLog {
 
     /// Read log file and get vector of UfwLog
     ///
+    /// This function reads the **entire file** and returns a vector of UfwLog objects. If your log file
+    /// is very large or RAM is limited, you may want to use [Self::from_buf_reader] instead.
+    ///
     /// # Arguments
     ///
     /// * `path` - Path to log file
@@ -354,6 +359,52 @@ impl UfwLog {
     /// Returns an error if the log file cannot be read or parsed.
     pub fn from_file(path: impl AsRef<Path>) -> Result<Vec<UfwLog>, Error> {
         crate::parser::get_ufwlog_vec(path)
+    }
+
+    /// Get an iterator of UfwLog from a buffer reader.
+    ///
+    /// This function reads the log file line by line and returns an iterator of UfwLog objects or errors.
+    ///
+    /// That will be more memory efficient than [Self::from_file] when the log file is very large,
+    /// or useful when the source is not a file, such as stdin or a network stream.
+    ///
+    /// # Errors
+    ///
+    /// Returns an iterator that contains error if the line cannot be read or parsed, or the io is invalid.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::io::BufReader;
+    /// use ufwlog::UfwLog;
+    /// use ufwlog::error::Error;
+    ///
+    /// fn main() {
+    ///     // simulate log stream or stdin, there are two lines, each line is a log record
+    ///     let log_str = "Jan 16 02:13:52 103213020 kernel: [3601090.569259] [UFW AUDIT] IN= OUT=lo SRC=127.0.0.1 DST=127.0.0.1 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=33539 DF PROTO=ICMP TYPE=8 CODE=0 ID=10289 SEQ=1";
+    ///     let log_str2 = "Apr 22 09:21:07 7C56 kernel: [ 3353.096838] [UFW BLOCK] IN=enp42s0 OUT= MAC= SRC=192.168.1.147 DST=230.230.230.230 LEN=160 TOS=0x00 PREC=0x00 TTL=1 ID=54530 DF PROTO=UDP SPT=60948 DPT=8978 LEN=140";
+    ///     let logs_str = [log_str, log_str2]; // used for assert
+    ///     // simulating log stream or stdin, add a newline between logs
+    ///     let stdin = format!("{}\n{}", log_str, log_str2);
+    ///     // new a buffer reader
+    ///     let buf_reader = BufReader::new(stdin.as_bytes());
+    ///     // call from_buf_reader(), then get an iterator containing UfwLog objects or errors
+    ///     let ufwlog_iter = UfwLog::from_buf_reader(buf_reader);
+    ///     // iterate over the iterator
+    ///     for (line_number, ufwlog) in ufwlog_iter.enumerate() {
+    ///         assert!(ufwlog.is_ok());
+    ///         assert_eq!(*logs_str.get(line_number).unwrap(), ufwlog.unwrap().get_origin());
+    ///     }
+    /// }
+    ///
+    /// ```
+    pub fn from_buf_reader(
+        buf_reader: impl io::BufRead,
+    ) -> impl Iterator<Item = Result<UfwLog, Error>> {
+        buf_reader.lines().map(|l| {
+            l.map_err(From::from)
+                .and_then(|s| UfwLog::from_str(s.as_str()))
+        })
     }
 
     /// Get origin content of log
@@ -378,10 +429,10 @@ impl UfwLog {
     }
 }
 
-impl std::str::FromStr for UfwLog {
+impl FromStr for UfwLog {
     type Err = Error;
 
-    /// Parse log string and try to convert to UfwLog struct
+    /// Parse single log string and try to convert to UfwLog struct
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         UfwLog::from_hashmap(crate::parser::to_hashmap(s))
     }
