@@ -1,3 +1,26 @@
+//! Traits and implementations for exporting UFW logs into various formats.
+//!
+//! This module provides the interface for exporting UFW logs into a specific format.
+//! You can use the built-in exporter or implement the [`Export`] trait to support new format.
+//!
+//! ## Quick Start
+//!
+//! ```rust
+//! let logs = ufwlog::UfwLog::from_file("./ufw.log")?;
+//! let target = "csv";
+//!
+//! let exporter: Box<dyn ufwlog::export::Export> = match target {
+//!     "csv" => Box::new(ufwlog::export::csv::Exporter),
+//!     _ => unimplemented!(),
+//! };
+//! // write to stdout
+//! let stdout = std::io::stdout();
+//! let mut writer = std::io::BufWriter::new(stdout.lock());
+//! exporter.export(&logs, &mut writer)?;
+//!
+//! # Ok::<(), ufwlog::error::Error>(())
+//! ```
+
 use crate::error::Error;
 
 pub mod csv;

@@ -5,13 +5,15 @@ use std::io;
 use std::path::Path;
 use std::str::FromStr;
 
-/// An ufw log
+/// An ufw log entry
+///
+/// Each log record will be parsed into a `UfwLog` struct.
 ///
 /// If the field may not exist in some log level, it will be declared as `Option` type.
 ///
 /// Each field mean can see the following site:
-/// * https://help.ubuntu.com/community/UFW#Interpreting_Log_Entries
-/// * https://unix.stackexchange.com/a/702909
+/// * <https://help.ubuntu.com/community/UFW#Interpreting_Log_Entries>
+/// * <https://unix.stackexchange.com/a/702909>
 #[derive(Debug)]
 pub struct UfwLog {
     /// month of log record, 1-12
@@ -25,13 +27,21 @@ pub struct UfwLog {
     /// The time in seconds since boot.
     pub uptime: String,
     /// Short description of logged event
+    ///
+    /// See [`LoggedEvent`] for possible values.
     pub event: LoggedEvent,
 
-    /// If set, then the event was an incoming event.
+    /// The network interface the packet arrived on (e.g. `eth0`).
+    ///
+    /// Empty string if this is not an incoming event.
     pub r#in: String,
-    /// If set, then the event was an outgoing event.
+    /// The network interface the packet departed from (e.g. `eth0`).
+    ///
+    /// Empty string if this is not an outgoing event.
     pub out: String,
-    /// a 14-byte combination of the Destination MAC, Source MAC, and EtherType fields, following the order found in the Ethernet II header.
+    /// A 14-byte combination of destination MAC, source MAC, and EtherType fields.
+    ///
+    /// Follows the order found in the Ethernet II header.
     pub mac: String,
     /// source IP
     pub src: String,
@@ -39,57 +49,121 @@ pub struct UfwLog {
     pub dst: String,
     /// length of packet
     pub len: u32,
-    /// type of service
+    /// Type of Service field in the IP header.
+    ///
+    /// Used to indicate the desired quality of service for the packet.
     pub tos: Option<String>,
+    /// Precedence field in the IP header.
+    ///
+    /// Indicates the priority of the packet.
     pub prec: Option<String>,
     /// time to live
     pub ttl: Option<u16>,
+    /// IP packet identifier.
+    ///
+    /// Used to identify fragments of the same original packet during reassembly.
     pub id: Option<u32>,
     /// don't fragment
+    ///
+    /// Set in the IP header.
+    ///
+    /// When `true`, the packet must not be fragmented; it will be dropped if it
+    /// exceeds the MTU of the next hop.
     pub df: bool,
-    /// protocol
+    /// Network protocol (e.g. `TCP`, `UDP`, `ICMP`).
     pub proto: String,
     /// source port
+    ///
+    /// Only present for protocols that use ports, such as TCP and UDP.
     pub spt: Option<u16>,
     /// detestation port
+    ///
+    /// Only present for protocols that use ports, such as TCP and UDP.
     pub dpt: Option<u16>,
-    /// the size of packet the sender is willing to receive
+    /// TCP receive window size in bytes.
+    ///
+    /// Indicates the amount of data the sender is willing to receive before
+    /// requiring an acknowledgment.
     pub window: Option<u32>,
+    /// Reserved bits in the TCP header.
+    ///
+    /// Should always be zero; non-zero values may indicate malformed packets.
     pub res: String,
 
     // TCP control bits / flag
     /// synchronization
+    ///
+    /// TCP SYN flag — initiates a connection.
     pub syn: bool,
     /// acknowledgment
+    ///
+    /// TCP ACK flag — acknowledges received data.
     pub ack: bool,
-    /// last package from sender
+    /// TCP FIN flag — indicates the sender has finished sending data.
     pub fin: bool,
-    /// Reset the connection
+    /// TCP RST flag — reset the connection.
     pub rst: bool,
-    /// push function
+    /// TCP PSH flag — requests the receiver to push buffered data to the application.
     pub psh: bool,
     /// Congestion window reduced
+    ///
+    /// TCP CWR flag — indicates the sender reduced its congestion window.
     pub cwr: bool,
     /// ECN-Echo
+    ///
+    /// TCP ECE flag (ECN-Echo) — signals that the sender received a congestion notification.
     pub ece: bool,
+    /// TCP urgent pointer.
+    ///
     /// Indicates whether the urgent pointer field is significant.
     ///
-    /// 0 means it's not.
+    /// When `Some(true)`, the urgent pointer field is significant and points to
+    /// the last byte of urgent data. `Some(false)` or `None` means no urgent data.
     pub urgp: Option<bool>,
 
-    pub tc: Option<i32>, // TODO: type check need
+    /// Traffic class (IPv6 only).
+    ///
+    /// Similar to the TOS field in IPv4, used to mark packet priority and service type.
+    /// Expected range: 0–255, but the exact type is unconfirmed.
+    pub tc: Option<u8>,
     /// hop limit
     pub hoplimit: Option<u8>,
-    /// flow label
-    pub flowlbl: Option<i32>, // TODO: type need check
-    pub r#type: Option<i32>,  // TODO: type need check
-    pub code: Option<String>, // TODO: type check need
+    /// Flow label (IPv6 only).
+    ///
+    /// Identifies packets belonging to the same flow, allowing routers to process
+    // /// them consistently. Expected range: 0–1048575 (20-bit value)
+    pub flowlbl: Option<u32>,
+    /// ICMP/ICMPv6 message type.
+    ///
+    /// Indicates the kind of ICMP message (e.g. `8` = Echo Request, `0` = Echo Reply).
+    pub r#type: Option<u8>,
+    /// ICMP/ICMPv6 sub-code for the message type.
+    ///
+    /// Provides additional context for the `type` field.
+    pub code: Option<u8>,
+    /// ICMP sequence number.
+    ///
+    /// Used to match ICMP request and reply pairs, and to detect packet loss or reordering.
     pub seq: Option<u32>,
+    /// Maximum Transmission Unit.
+    ///
+    /// The largest packet size (in bytes) that the network interface can transmit.
+    /// Appears in ICMP "Packet Too Big" messages. Common value: 1500 (Ethernet).
     pub mtu: Option<u16>,
-    pub mark: Option<String>, // TODO: type check need
-
-    // unconfirmed
+    /// Netfilter packet mark.
+    ///
+    /// Set by iptables/nftables rules to classify or track packets.
+    /// Typically represented as a hexadecimal value. Expected type is `u32`
+    pub mark: Option<u32>,
+    /// Physical input interface.
+    ///
+    /// The actual physical network interface that received the packet.
+    /// May differ from [`in`](Self::in) when virtual interfaces such as bridges are involved.
     pub physin: Option<String>,
+    /// Physical output interface.
+    ///
+    /// The actual physical network interface that sent the packet.
+    /// May differ from [`out`](Self::out) when virtual interfaces such as bridges are involved.
     pub phyout: Option<String>,
 
     /// origin content of log
@@ -282,7 +356,7 @@ impl UfwLog {
                 "tc" => {
                     new.tc = Some(
                         value
-                            .parse::<i32>()
+                            .parse::<u8>()
                             .map_err(|_| ParseError::InvalidNumber { field: "tc", value })?,
                     )
                 }
@@ -297,7 +371,7 @@ impl UfwLog {
                     new.flowlbl =
                         Some(
                             value
-                                .parse::<i32>()
+                                .parse::<u32>()
                                 .map_err(|_| ParseError::InvalidNumber {
                                     field: "flowlbl",
                                     value,
@@ -306,16 +380,17 @@ impl UfwLog {
                 }
                 "type" => {
                     new.r#type =
-                        Some(
-                            value
-                                .parse::<i32>()
-                                .map_err(|_| ParseError::InvalidNumber {
-                                    field: "type",
-                                    value,
-                                })?,
-                        )
+                        Some(value.parse::<u8>().map_err(|_| ParseError::InvalidNumber {
+                            field: "type",
+                            value,
+                        })?)
                 }
-                "code" => new.code = Some(value),
+                "code" => {
+                    new.code = Some(value.parse::<u8>().map_err(|_| ParseError::InvalidNumber {
+                        field: "code",
+                        value,
+                    })?)
+                }
                 "seq" => {
                     new.seq = Some(
                         value
@@ -336,7 +411,17 @@ impl UfwLog {
                             })?,
                     )
                 }
-                "mark" => new.mark = Some(value),
+                "mark" => {
+                    new.mark =
+                        Some(
+                            value
+                                .parse::<u32>()
+                                .map_err(|_| ParseError::InvalidNumber {
+                                    field: "mark",
+                                    value,
+                                })?,
+                        )
+                }
                 "physin" => new.physin = Some(value),
                 "phyout" => new.phyout = Some(value),
                 _ => (),
@@ -396,7 +481,6 @@ impl UfwLog {
     ///         assert_eq!(*logs_str.get(line_number).unwrap(), ufwlog.unwrap().get_origin());
     ///     }
     /// }
-    ///
     /// ```
     pub fn from_buf_reader(
         buf_reader: impl io::BufRead,
@@ -432,7 +516,22 @@ impl UfwLog {
 impl FromStr for UfwLog {
     type Err = Error;
 
-    /// Parse single log string and try to convert to UfwLog struct
+    /// Parse **single log string** and try to convert to UfwLog struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the log string cannot be parsed.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::str::FromStr;
+    /// use ufwlog::UfwLog;
+    ///
+    /// let log_str = "Jan 16 02:13:52 103213020 kernel: [3601090.569259] [UFW AUDIT] IN= OUT=lo SRC=127.0.0.1 DST=127.0.0.1 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=33539 DF PROTO=ICMP TYPE=8 CODE=0 ID=10289 SEQ=1";
+    /// let log = UfwLog::from_str(log_str).unwrap();
+    /// assert_eq!(log_str, log.get_origin());
+    /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         UfwLog::from_hashmap(crate::parser::to_hashmap(s))
     }

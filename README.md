@@ -14,10 +14,12 @@ cargo install ufwlog
 
 ## Usage
 
+The `UfwLog` struct is a parsed log record. You can use it to filter, export, etc.
+
 ```rust
-fn main() {
+fn main() -> Result<(), ufwlog::error::Error> {
     // input log path then get a vec contains UfwLog struct
-    let logs: Vec<ufwlog::UfwLog> = ufwlog::Ufwlog::from_file("./ufw.log").unwrap();
+    let logs: Vec<ufwlog::UfwLog> = ufwlog::Ufwlog::from_file("./ufw.log")?;
     // filter record
     let filtered = logs
         .iter()
@@ -30,6 +32,8 @@ fn main() {
     csv_exporter.export(filtered,  &mut std::io::stdout()); // print csv content to stdout
 }
 ```
+
+See [docs.rs](https://docs.rs/ufwlog) for full API docs.
 
 ## Reporting
 

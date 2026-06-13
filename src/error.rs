@@ -3,7 +3,9 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 pub enum Error {
+    /// A log line could not be parsed.
     Parse(ParseError),
+    /// An I/O error occurred while reading or writing.
     Io(std::io::Error),
 }
 

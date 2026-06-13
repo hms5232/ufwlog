@@ -1,3 +1,23 @@
+//! Csv Exporter module
+//!
+//! ## Quick Start
+//!
+//! Export logs to CSV:
+//!
+//! ```rust
+//! use ufwlog::{UfwLog, LoggedEvent};
+//! use ufwlog::export::Export;
+//! use ufwlog::export::csv::Exporter as CsvExporter;
+//!
+//! let logs = UfwLog::from_file("./ufw.log")?;
+//! let exporter = CsvExporter;
+//! let mut file = std::fs::File::create("output.csv")?;
+//! let rows = exporter.export(&logs, &mut file)?;
+//!
+//! # std::fs::remove_file("output.csv").unwrap();
+//! # Ok::<(), ufwlog::error::Error>(())
+//! ```
+
 use crate::error::Error;
 use crate::ufw_log::UfwLog;
 use std::io::Write;
@@ -150,10 +170,10 @@ impl Exporter {
         row.push(unwrap_or_empty_then_to_string(log.hoplimit));
         row.push(unwrap_or_empty_then_to_string(log.flowlbl));
         row.push(unwrap_or_empty_then_to_string(log.r#type));
-        row.push(unwrap_or_empty_then_to_string(log.code.clone()));
+        row.push(unwrap_or_empty_then_to_string(log.code));
         row.push(unwrap_or_empty_then_to_string(log.seq));
         row.push(unwrap_or_empty_then_to_string(log.mtu));
-        row.push(unwrap_or_empty_then_to_string(log.mark.clone()));
+        row.push(unwrap_or_empty_then_to_string(log.mark));
         row.push(unwrap_or_empty_then_to_string(log.physin.clone()));
         row.push(unwrap_or_empty_then_to_string(log.phyout.clone()));
         row.push(log.get_origin().to_string());
