@@ -5,7 +5,7 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust
+//! ```rust, no_run
 //! let logs = ufwlog::UfwLog::from_file("./ufw.log")?;
 //! let target = "csv";
 //!

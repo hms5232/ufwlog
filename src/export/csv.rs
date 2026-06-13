@@ -4,7 +4,7 @@
 //!
 //! Export logs to CSV:
 //!
-//! ```rust
+//! ```rust, no_run
 //! use ufwlog::{UfwLog, LoggedEvent};
 //! use ufwlog::export::Export;
 //! use ufwlog::export::csv::Exporter as CsvExporter;

@@ -6,7 +6,7 @@
 //!
 //! Parse a log file and filter blocked events from local:
 //!
-//! ```rust
+//! ```rust, no_run
 //! use ufwlog::{UfwLog, LoggedEvent};
 //!
 //! let logs: Vec<UfwLog> = UfwLog::from_file("./ufw.log")?;
@@ -20,11 +20,11 @@
 //!
 //! Or you want to a lazy iterator to handle each log:
 //!
-//! ```rust
+//! ```rust, no_run
 //! use std::io::BufReader;
 //! use ufwlog::{UfwLog, LoggedEvent};
 //!
-//! let reader = BufReader::new(std::fs::File::open("./ufw.log").unwrap());
+//! let reader = BufReader::new(std::fs::File::open("./ufw.log")?);
 //! let log_iters = UfwLog::from_buf_reader(reader);
 //!
 //! let blocked = log_iters
