@@ -27,7 +27,7 @@ members = [
 default-members = ["cli"]
 
 [workspace.package]
-version = "0.3.0-beta.1"
+version = "0.3.0-beta.2"
 edition = "2021"
 authors = ["hms5232 <hms5232@hhming.moe>"]
 license = "MPL-2.0"
