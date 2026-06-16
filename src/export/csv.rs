@@ -5,7 +5,7 @@
 //! Export logs to CSV:
 //!
 //! ```rust, no_run
-//! use ufwlog::{UfwLog, LoggedEvent};
+//! use ufwlog::{UfwLog, UfwPolicy};
 //! use ufwlog::export::Export;
 //! use ufwlog::export::csv::Exporter as CsvExporter;
 //!
@@ -31,7 +31,7 @@ pub const HEADER: [&str; 35] = [
     "Time",
     "hostname",
     "uptime",
-    "event",
+    "policy",
     "IN",
     "OUT",
     "MAC",
@@ -94,7 +94,7 @@ impl Exporter {
     ///
     /// ```rust
     /// let export = ufwlog::export::csv::Exporter;
-    /// assert_eq!(export.get_header(), ["Month", "Day", "Time", "hostname", "uptime", "event", "IN", "OUT", "MAC", "SRC", "DST", "LEN", "TOS", "PREC", "TTL", "ID", "DF", "PROTO", "SPT", "DPT", "WINDOW", "RES", "Control Bits / flags", "URGP", "TC", "HOPLIMIT", "FLOWLBL", "TYPE", "CODE", "SEQ", "MTU", "MARK", "PHYSIN", "PHYOUT", "origin"])
+    /// assert_eq!(export.get_header(), ["Month", "Day", "Time", "hostname", "uptime", "policy", "IN", "OUT", "MAC", "SRC", "DST", "LEN", "TOS", "PREC", "TTL", "ID", "DF", "PROTO", "SPT", "DPT", "WINDOW", "RES", "Control Bits / flags", "URGP", "TC", "HOPLIMIT", "FLOWLBL", "TYPE", "CODE", "SEQ", "MTU", "MARK", "PHYSIN", "PHYOUT", "origin"])
     /// ```
     pub fn get_header(&self) -> [&'static str; 35] {
         HEADER
@@ -131,7 +131,7 @@ impl Exporter {
         row.push(log.time.clone());
         row.push(log.hostname.clone());
         row.push(log.uptime.clone());
-        row.push(log.event.to_string());
+        row.push(log.policy.to_string());
         row.push(log.r#in.clone());
         row.push(log.out.clone());
         row.push(log.mac.clone());

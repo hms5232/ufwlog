@@ -28,8 +28,8 @@ pub struct UfwLog {
     pub uptime: String,
     /// Short description of logged event
     ///
-    /// See [`LoggedEvent`] for possible values.
-    pub event: LoggedEvent,
+    /// See [`Policy`] for possible values.
+    pub policy: Policy,
 
     /// The network interface the packet arrived on (e.g. `eth0`).
     ///
@@ -179,7 +179,7 @@ impl UfwLog {
             time: "".to_string(),
             hostname: "".to_string(),
             uptime: "".to_string(),
-            event: LoggedEvent::default(),
+            policy: Policy::default(),
             r#in: "".to_string(),
             out: "".to_string(),
             mac: "".to_string(),
@@ -278,7 +278,7 @@ impl UfwLog {
                 "time" => new.time = value,
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
-                "event" => new.event = LoggedEvent::from(value),
+                "event" => new.policy = Policy::from(value),
                 "in" => new.r#in = value,
                 "out" => new.out = value,
                 "mac" => new.mac = value,
@@ -537,42 +537,59 @@ impl FromStr for UfwLog {
     }
 }
 
-/// The ufw logged event list
+/// The ufw policy list.
+///
+/// Community may call it "action" or "event", but we use "policy", as variable named in [source code](https://launchpad.net/ufw).
 #[derive(Debug, Default, PartialEq)]
-pub enum LoggedEvent {
+pub enum Policy {
+    /// Unknown policy.
+    ///
+    /// If you see `Unknown` in the output, it means the policy is not recognized.
+    /// Please report to [GitHub](https://github.com/hms5232/ufwlog/issues).
     #[default]
-    Unknown, // default
+    Unknown,
+    /// Packet is matched by a deny/reject rule.
+    ///
+    /// This is default policy to incoming packets.
     Block,
+    /// Packet is matched by an allow rule.
+    ///
+    /// This is default policy to outgoing packets.
     Allow,
-    Deny,
+    /// Only show in medium and higher log level.
     Audit,
-    AuditInvalid, // AUDIT INVALID
+    /// INVALID packets (packets not associated with a known connection).
+    ///
+    /// Only show in medium and higher log level.
+    AuditInvalid,
+    /// Packet was blocked by rate limiting.
+    LimitBlock,
 }
 
-impl From<String> for LoggedEvent {
+impl From<String> for Policy {
     fn from(value: String) -> Self {
         match value.to_uppercase().as_str() {
-            "BLOCK" => LoggedEvent::Block,
-            "ALLOW" => LoggedEvent::Allow,
-            "DENY" => LoggedEvent::Deny,
-            "AUDIT" => LoggedEvent::Audit,
-            "AUDIT INVALID" => LoggedEvent::AuditInvalid,
-            _ => LoggedEvent::Unknown,
+            "BLOCK" => Policy::Block,
+            "ALLOW" => Policy::Allow,
+            "AUDIT" => Policy::Audit,
+            "AUDIT INVALID" => Policy::AuditInvalid,
+            "LIMIT BLOCK" => Policy::LimitBlock,
+            _ => Policy::Unknown,
         }
     }
 }
 
-impl Display for LoggedEvent {
+impl Display for Policy {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{}",
             match self {
-                LoggedEvent::Block => "BLOCK",
-                LoggedEvent::Allow => "ALLOW",
-                LoggedEvent::Deny => "DENY",
-                LoggedEvent::Audit => "AUDIT",
-                LoggedEvent::AuditInvalid => "AUDIT INVALID",
+                Policy::Block => "BLOCK",
+                Policy::Allow => "ALLOW",
+                Policy::Audit => "AUDIT",
+                Policy::AuditInvalid => "AUDIT INVALID",
+                Policy::LimitBlock => "LIMIT BLOCK",
                 _ => "UNKNOWN",
             }
         )

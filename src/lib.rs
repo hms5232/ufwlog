@@ -7,12 +7,12 @@
 //! Parse a log file and filter blocked events from local:
 //!
 //! ```rust, no_run
-//! use ufwlog::{UfwLog, LoggedEvent};
+//! use ufwlog::{UfwLog, UfwPolicy};
 //!
 //! let logs: Vec<UfwLog> = UfwLog::from_file("./ufw.log")?;
 //!
 //! let blocked = logs.iter()
-//!     .filter(|log| log.event == LoggedEvent::Block)
+//!     .filter(|log| log.policy == UfwPolicy::Block)
 //!     .filter(|log| log.src == "127.0.0.1")
 //!     .collect::<Vec<_>>();
 //! # Ok::<(), ufwlog::error::Error>(())
@@ -22,14 +22,14 @@
 //!
 //! ```rust, no_run
 //! use std::io::BufReader;
-//! use ufwlog::{UfwLog, LoggedEvent};
+//! use ufwlog::{UfwLog, UfwPolicy};
 //!
 //! let reader = BufReader::new(std::fs::File::open("./ufw.log")?);
 //! let log_iters = UfwLog::from_buf_reader(reader);
 //!
 //! let blocked = log_iters
 //!     .filter_map(|log| log.ok())
-//!     .filter(|log| log.event == LoggedEvent::Block)
+//!     .filter(|log| log.policy == UfwPolicy::Block)
 //!     .filter(|log| log.src == "127.0.0.1")
 //!     .for_each(|log| println!("{}", log.dst));
 //! # Ok::<(), ufwlog::error::Error>(())
@@ -40,5 +40,5 @@ pub mod export;
 mod parser;
 mod ufw_log;
 
-pub use ufw_log::LoggedEvent;
+pub use ufw_log::Policy as UfwPolicy;
 pub use ufw_log::UfwLog;

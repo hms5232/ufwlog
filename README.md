@@ -25,7 +25,7 @@ fn main() -> Result<(), ufwlog::error::Error> {
     // filter record
     let filtered = logs
         .into_iter()
-        .filter(|log| log.event == ufwlog::LoggedEvent::Block) // only block event
+        .filter(|log| log.event == ufwlog::UfwPolicy::Block) // only block event
         .filter(|log| log.src == "127.0.0.1") // package from 127.0.0.1
         .collect::<Vec<ufwlog::UfwLog>>();
 
