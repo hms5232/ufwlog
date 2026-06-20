@@ -49,9 +49,9 @@ pub struct UfwLog {
     pub dst: String,
     /// length of packet
     pub len: u32,
-    /// Type of Service field in the IP header.
+    /// Type of Service.
     ///
-    /// Used to indicate the desired quality of service for the packet.
+    /// An Internet Protocol field which indicates the type of service for this internet fragment.
     pub tos: Option<String>,
     /// Precedence field in the IP header.
     ///
@@ -91,35 +91,89 @@ pub struct UfwLog {
     pub res: String,
 
     // TCP control bits / flag
-    /// synchronization
+    // Order by TCP flag order: [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    /// Congestion Window Reduced
     ///
-    /// TCP SYN flag — initiates a connection.
-    pub syn: bool,
-    /// acknowledgment
+    /// A Congestion Window Reduced (CWR) flag in the TCP header so that the data sender can inform
+    /// the data receiver that the congestion window has been reduced.
     ///
-    /// TCP ACK flag — acknowledges received data.
-    pub ack: bool,
-    /// TCP FIN flag — indicates the sender has finished sending data.
-    pub fin: bool,
-    /// TCP RST flag — reset the connection.
-    pub rst: bool,
-    /// TCP PSH flag — requests the receiver to push buffered data to the application.
-    pub psh: bool,
-    /// Congestion window reduced
-    ///
-    /// TCP CWR flag — indicates the sender reduced its congestion window.
+    /// Introduced in [RFC 3168](https://datatracker.ietf.org/doc/html/rfc3168).
     pub cwr: bool,
     /// ECN-Echo
     ///
-    /// TCP ECE flag (ECN-Echo) — signals that the sender received a congestion notification.
+    /// An ECN-Echo (ECE) flag in the TCP header so that the data receiver can inform the data
+    /// sender when a CE packet has been received
+    ///
+    /// Introduced in [RFC 3168](https://datatracker.ietf.org/doc/html/rfc3168).
     pub ece: bool,
+    /// Urgent Pointer
+    ///
+    /// A control bit (urgent), occupying no sequence space, used to
+    /// indicate that the receiving user should be notified to do
+    /// urgent processing as long as there is data to be consumed with
+    /// sequence numbers less than the value indicated in the urgent
+    /// pointer.
+    ///
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub urg: bool,
+    /// acknowledgment
+    ///
+    /// A control bit (acknowledge) occupying no sequence space, which
+    /// indicates that the acknowledgment field of this segment
+    /// specifies the next sequence number the sender of this segment
+    /// is expecting to receive, hence acknowledging receipt of all
+    /// previous sequence numbers.
+    ///
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub ack: bool,
+    /// Push Function.
+    ///
+    /// A control bit occupying no sequence space, indicating that
+    /// this segment contains data that must be pushed through to the
+    /// receiving user.
+    ///
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub psh: bool,
+    /// Reset the connection.
+    ///
+    /// A control bit (reset), occupying no sequence space, indicating
+    /// that the receiver should delete the connection without further
+    /// interaction. The receiver can determine, based on the
+    /// sequence number and acknowledgment fields of the incoming
+    /// segment, whether it should honor the reset command or ignore
+    /// it. In no case does receipt of a segment containing RST give
+    /// rise to an RST in response.
+    ///
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub rst: bool,
+    /// Synchronize sequence numbers.
+    ///
+    /// A control bit in the incoming segment, occupying one sequence
+    /// number, used at the initiation of a connection, to indicate
+    /// where the sequence numbering will start.
+    ///
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub syn: bool,
+    /// No more data from sender.
+    ///
+    /// A control bit (finis) occupying one sequence number, which
+    /// indicates that the sender will send no more data or control
+    /// occupying sequence space.
+    ///
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub fin: bool,
+
+    // control bit / flag related
     /// TCP urgent pointer.
     ///
-    /// Indicates whether the urgent pointer field is significant.
+    /// This field communicates the current value of the urgent pointer as a
+    /// positive offset from the sequence number in this segment. The
+    /// urgent pointer points to the sequence number of the octet following
+    /// the urgent data. This field is only be interpreted in segments with
+    /// the URG control bit set.
     ///
-    /// When `Some(true)`, the urgent pointer field is significant and points to
-    /// the last byte of urgent data. `Some(false)` or `None` means no urgent data.
-    pub urgp: Option<bool>,
+    /// Introduced in [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
+    pub urgp: Option<u16>,
 
     /// Traffic class (IPv6 only).
     ///
@@ -196,13 +250,14 @@ impl UfwLog {
             dpt: None,
             window: None,
             res: "".to_string(),
-            syn: false,
-            ack: false,
-            fin: false,
-            rst: false,
-            psh: false,
             cwr: false,
             ece: false,
+            urg: false,
+            ack: false,
+            psh: false,
+            rst: false,
+            syn: false,
+            fin: false,
             urgp: None,
             tc: None,
             hoplimit: None,
@@ -352,7 +407,18 @@ impl UfwLog {
                 "psh" => new.psh = value == "1",
                 "cwr" => new.cwr = value == "1",
                 "ece" => new.ece = value == "1",
-                "urgp" => new.urgp = Some(value == "1"),
+                "urg" => new.urg = value == "1",
+                "urgp" => {
+                    new.urgp =
+                        Some(
+                            value
+                                .parse::<u16>()
+                                .map_err(|_| ParseError::InvalidNumber {
+                                    field: "urgp",
+                                    value,
+                                })?,
+                        )
+                }
                 "tc" => {
                     new.tc = Some(
                         value

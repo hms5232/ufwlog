@@ -115,6 +115,7 @@ pub fn to_hashmap(log: &str) -> HashMap<&str, String> {
             "PSH" => associative.insert("psh", "1".to_string()),
             "CWR" => associative.insert("cwr", "1".to_string()),
             "ECE" => associative.insert("ece", "1".to_string()),
+            "URG" => associative.insert("urg", "1".to_string()),
             "DF" => associative.insert("df", "1".to_string()),
             _ => None,
         };

@@ -124,6 +124,12 @@ impl Exporter {
         if log.cwr {
             flags.push("CWR");
         }
+        if log.ece {
+            flags.push("ECE");
+        }
+        if log.urg {
+            flags.push("URG");
+        }
 
         // should push by "HEADER" order
         row.push(log.month.to_string());
@@ -155,16 +161,7 @@ impl Exporter {
         row.push(flags.join(" "));
         row.push(
             // The value follows the flag, so it is empty when it does not appear, and it depends on the record value when it appears
-            if log.urgp.is_some() {
-                if log.urgp.unwrap() {
-                    "1"
-                } else {
-                    "0"
-                }
-            } else {
-                ""
-            }
-            .to_string(),
+            log.urgp.map_or("".to_string(), |v| v.to_string()),
         );
         row.push(unwrap_or_empty_then_to_string(log.tc));
         row.push(unwrap_or_empty_then_to_string(log.hoplimit));
