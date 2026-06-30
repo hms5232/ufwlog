@@ -2,6 +2,7 @@
 name = "ufwlog"
 version.workspace = true
 edition.workspace = true
+rust-version = "1.64.0"
 description = "A library to parse, format and export ufw log."
 authors.workspace = true
 license.workspace = true
