@@ -16,28 +16,7 @@ cargo install ufwlog
 
 The `UfwLog` struct is a parsed log record. You can use it to filter, export, etc.
 
-```rust
-use ufwlog::export::Export;
-
-fn main() -> Result<(), ufwlog::error::Error> {
-    // input log path then get a vec contains UfwLog struct
-    let logs: Vec<ufwlog::UfwLog> = ufwlog::UfwLog::from_file("ufw.log")?;
-    // filter record
-    let filtered = logs
-        .into_iter()
-        .filter(|log| log.event == ufwlog::UfwPolicy::Block) // only block event
-        .filter(|log| log.src == "127.0.0.1") // package from 127.0.0.1
-        .collect::<Vec<ufwlog::UfwLog>>();
-
-    // export to csv file
-    let csv_exporter = ufwlog::export::csv::Exporter;
-    csv_exporter.export(&filtered, &mut std::io::stdout())?; // print csv content to stdout
-    Ok(())
-}
-
-```
-
-See [docs.rs](https://docs.rs/ufwlog) for full API docs.
+See [quick start](https://docs.rs/ufwlog/#quick-start) part to get started, or [docs.rs](https://docs.rs/ufwlog) for full API docs.
 
 ## Reporting
 
