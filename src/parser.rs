@@ -51,11 +51,15 @@ pub fn to_hashmap(log: &str) -> HashMap<&str, String> {
     for (index, value) in split_log.iter().enumerate() {
         // handle record has equal symbol
         if value.contains("=") {
-            let key_and_value: Vec<&str> = value.split("=").collect();
-            associative.insert(
-                key_and_value.first().unwrap().trim(),
-                key_and_value.get(1).unwrap().to_string(),
-            );
+            // field => value
+            let (f, v) = value.split_once("=").unwrap();
+
+            // handle duplicate fields
+            if associative.contains_key(f) {
+                continue;
+            }
+
+            associative.insert(f, v.to_string());
             continue;
         }
         // handle head part
