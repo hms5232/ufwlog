@@ -88,7 +88,7 @@ pub struct UfwLog {
     /// Reserved bits in the TCP header.
     ///
     /// Should always be zero; non-zero values may indicate malformed packets.
-    pub res: String,
+    pub res: Option<String>,
 
     // TCP control bits / flag
     // Order by TCP flag order: [RFC 793](https://datatracker.ietf.org/doc/html/rfc793).
@@ -249,7 +249,7 @@ impl UfwLog {
             spt: None,
             dpt: None,
             window: None,
-            res: "".to_string(),
+            res: None,
             cwr: false,
             ece: false,
             urg: false,
@@ -333,7 +333,7 @@ impl UfwLog {
                 "time" => new.time = value,
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
-                "event" => new.policy = Policy::from(value),
+                "policy" => new.policy = Policy::from(value),
                 "in" => new.r#in = value,
                 "out" => new.out = value,
                 "mac" => new.mac = value,
@@ -399,7 +399,7 @@ impl UfwLog {
                                 })?,
                         )
                 }
-                "res" => new.res = value,
+                "res" => new.res = Some(value),
                 "syn" => new.syn = value == "1",
                 "ack" => new.ack = value == "1",
                 "fin" => new.fin = value == "1",
@@ -635,11 +635,11 @@ pub enum Policy {
 impl From<String> for Policy {
     fn from(value: String) -> Self {
         match value.to_uppercase().as_str() {
-            "BLOCK" => Policy::Block,
-            "ALLOW" => Policy::Allow,
-            "AUDIT" => Policy::Audit,
-            "AUDIT INVALID" => Policy::AuditInvalid,
-            "LIMIT BLOCK" => Policy::LimitBlock,
+            "UFW BLOCK" | "BLOCK" => Policy::Block,
+            "UFW ALLOW" | "ALLOW" => Policy::Allow,
+            "UFW AUDIT" | "AUDIT" => Policy::Audit,
+            "UFW AUDIT INVALID" | "AUDIT INVALID" => Policy::AuditInvalid,
+            "UFW LIMIT BLOCK" | "LIMIT BLOCK" => Policy::LimitBlock,
             _ => Policy::Unknown,
         }
     }

@@ -42,13 +42,44 @@ pub fn split_by_space(log: &str) -> Vec<&str> {
 pub fn to_hashmap(log: &str) -> HashMap<&str, String> {
     let split_log = split_by_space(log);
     let mut associative = HashMap::new();
-    let mut is_event_range = false; // indicate whether the current record is in event name range
-    let mut event_name = vec![];
+    let mut square_bracket_range = false;
+    let mut square_brackets_data: Vec<String> = vec![];
 
     // add origin record
     associative.insert("origin", log.to_owned());
     // handle each fields
     for (index, value) in split_log.iter().enumerate() {
+        // handle square brackets
+        if value.contains("[") {
+            square_bracket_range = true;
+            // if not end of square brackets content, push to data and go to next field
+            if !value.contains("]") {
+                square_brackets_data.push(remove_brackets(value));
+                continue;
+            }
+            // else, it is end of square brackets content, go to next if block
+        }
+        if square_bracket_range {
+            square_brackets_data.push(remove_brackets(value));
+
+            // end of square brackets content
+            if value.contains("]") {
+                square_bracket_range = false;
+
+                if index <= 6 {
+                    associative.insert("uptime", square_brackets_data.join(" ").trim().to_string());
+                } else if index <= 9 {
+                    associative.insert("policy", square_brackets_data.join(" ").trim().to_string());
+                } else {
+                    // TODO: handle Original Data Datagram (RFC 792, 1812, 4443)
+                }
+
+                square_brackets_data = vec![]; // reset
+            }
+
+            continue;
+        }
+
         // handle record has equal symbol
         if value.contains("=") {
             // field => value
@@ -76,39 +107,7 @@ pub fn to_hashmap(log: &str) -> HashMap<&str, String> {
             3 => {
                 associative.insert("hostname", value.to_string());
             }
-            5 => {
-                // length only 1 mean: string only content "["
-                // so need to get next element
-                if value.len() == 1 {
-                    associative.insert("uptime", remove_brackets(split_log.get(6).unwrap()));
-                } else {
-                    associative.insert("uptime", remove_brackets(value));
-                }
-            }
-            _ => {
-                // handle event string
-                //
-                // because of align of uptime, we can't just depend on index to get the event name
-                // for example, it may be "kernel: [   21.050483] [UFW BLOCK]"
-
-                // event index probably in [6, 9]
-                if index <= 9 && index > 6 {
-                    // the end of event name
-                    if value.contains("]") {
-                        is_event_range = false;
-                        event_name.push(remove_brackets(value));
-                        associative.insert("event", event_name.join(" ").trim().to_string());
-                        continue;
-                    }
-                    if is_event_range {
-                        event_name.push(value.parse().unwrap());
-                    }
-                    // the start of event name
-                    if value.contains("[UFW") {
-                        is_event_range = true;
-                    }
-                }
-            }
+            _ => {}
         };
         // handle flag
         match value.trim() {

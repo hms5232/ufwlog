@@ -155,7 +155,7 @@ impl Exporter {
         row.push(unwrap_or_empty_then_to_string(log.spt));
         row.push(unwrap_or_empty_then_to_string(log.dpt));
         row.push(unwrap_or_empty_then_to_string(log.window));
-        row.push(log.res.clone());
+        row.push(unwrap_or_empty_then_to_string(log.res.clone()));
         row.push(flags.join(" "));
         row.push(
             // The value follows the flag, so it is empty when it does not appear, and it depends on the record value when it appears
