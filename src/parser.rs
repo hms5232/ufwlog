@@ -147,10 +147,8 @@ pub fn get_ufwlog_vec(path: impl AsRef<Path>) -> Result<Vec<UfwLog>, Error> {
     // parse as UfwLog struct
     let mut ufw_log_vec: Vec<UfwLog> = vec![];
     for log in log_by_line.iter() {
-        match UfwLog::from_str(log) {
-            Ok(log) => ufw_log_vec.push(log),
-            Err(e) => return Err(e),
-        }
+        let ul = UfwLog::from_str(log)?;
+        ufw_log_vec.push(ul);
     }
     Ok(ufw_log_vec)
 }

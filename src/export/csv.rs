@@ -78,10 +78,8 @@ impl super::Export for Exporter {
     fn export(&self, logs: &[UfwLog], writer: &mut dyn Write) -> Result<(), Error> {
         writeln!(writer, "{}", self.get_header().join(","))?;
         for log in logs {
-            match self.convert(log) {
-                Ok(c) => writeln!(writer, "{}", c)?,
-                Err(e) => return Err(e),
-            }
+            let c = self.convert(log)?;
+            writeln!(writer, "{}", c)?;
         }
         Ok(writer.flush()?)
     }
