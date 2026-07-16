@@ -25,7 +25,6 @@ path = "src/lib.rs"
 members = [
     "cli",
 ]
-default-members = ["cli"]
 
 [workspace.package]
 version = "0.3.0-beta.3"

@@ -66,7 +66,11 @@ cargo check --lib
 cargo run -p ufwlog-cli -- [parameters]
 ```
 
-You can omit the `-p` part because of default members setting.
+or use alias `rc` (abbreviation of `run cli`):
+
+```
+cargo rc -- [parameters]
+```
 
 ## LICENSE
 
