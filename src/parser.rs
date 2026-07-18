@@ -71,7 +71,12 @@ pub fn to_hashmap(log: &str) -> HashMap<&str, String> {
                 } else if index <= 9 {
                     associative.insert("policy", square_brackets_data.join(" ").trim().to_string());
                 } else {
-                    // TODO: handle Original Data Datagram (RFC 792, 1812, 4443)
+                    // handle Original Data Datagram (RFC 792, 1812, 4443)
+                    // currently, we only treat it as a string, do not parse it.
+                    associative.insert(
+                        "original_datagram",
+                        square_brackets_data.join(" ").trim().to_string(),
+                    );
                 }
 
                 square_brackets_data = vec![]; // reset

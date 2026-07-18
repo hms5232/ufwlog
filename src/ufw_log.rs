@@ -220,6 +220,20 @@ pub struct UfwLog {
     /// May differ from [`out`](Self::out) when virtual interfaces such as bridges are involved.
     pub phyout: Option<String>,
 
+    /// Original data datagram
+    ///
+    /// Raw, unparsed content of the ICMP-quoted original datagram (if any),
+    /// exactly as it appears in the log (already unwrapped from the outer
+    /// `[...]` brackets, but otherwise untouched).
+    ///
+    /// See [RFC 792](https://datatracker.ietf.org/doc/html/rfc792), [RFC 1812](https://datatracker.ietf.org/doc/html/rfc1812), and [RFC 4443](https://datatracker.ietf.org/doc/html/rfc4443) for background on this mechanism.
+    ///
+    /// Note: This field is currently a raw `String` because parsed access is rarely
+    /// needed. A future major version may change this to a structured type
+    /// (e.g. reusing the same fields as the outer packet). Such a change will
+    /// always be released as a major version bump per SemVer.
+    pub original_datagram: Option<String>,
+
     /// origin content of log
     origin: String,
 }
@@ -269,6 +283,7 @@ impl UfwLog {
             mark: None,
             physin: None,
             phyout: None,
+            original_datagram: None,
             origin: "".to_string(),
         }
     }
@@ -490,6 +505,7 @@ impl UfwLog {
                 }
                 "physin" => new.physin = Some(value),
                 "phyout" => new.phyout = Some(value),
+                "original_datagram" => new.original_datagram = Some(value),
                 _ => (),
             }
         }

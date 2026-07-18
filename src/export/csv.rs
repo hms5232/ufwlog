@@ -25,7 +25,7 @@ use std::io::Write;
 /// csv header
 ///
 /// Recommend use [get_header()](Exporter::get_header) to get it.
-pub const HEADER: [&str; 35] = [
+pub const HEADER: [&str; 36] = [
     "Month",
     "Day",
     "Time",
@@ -60,6 +60,7 @@ pub const HEADER: [&str; 35] = [
     "MARK",
     "PHYSIN",
     "PHYOUT",
+    "original data datagram",
     "origin",
 ];
 
@@ -92,9 +93,9 @@ impl Exporter {
     ///
     /// ```rust
     /// let export = ufwlog::export::csv::Exporter;
-    /// assert_eq!(export.get_header(), ["Month", "Day", "Time", "hostname", "uptime", "policy", "IN", "OUT", "MAC", "SRC", "DST", "LEN", "TOS", "PREC", "TTL", "ID", "DF", "PROTO", "SPT", "DPT", "WINDOW", "RES", "Control Bits / flags", "URGP", "TC", "HOPLIMIT", "FLOWLBL", "TYPE", "CODE", "SEQ", "MTU", "MARK", "PHYSIN", "PHYOUT", "origin"])
+    /// assert_eq!(export.get_header(), ["Month", "Day", "Time", "hostname", "uptime", "policy", "IN", "OUT", "MAC", "SRC", "DST", "LEN", "TOS", "PREC", "TTL", "ID", "DF", "PROTO", "SPT", "DPT", "WINDOW", "RES", "Control Bits / flags", "URGP", "TC", "HOPLIMIT", "FLOWLBL", "TYPE", "CODE", "SEQ", "MTU", "MARK", "PHYSIN", "PHYOUT", "original data datagram", "origin"])
     /// ```
-    pub fn get_header(&self) -> [&'static str; 35] {
+    pub fn get_header(&self) -> [&'static str; 36] {
         HEADER
     }
 
@@ -171,6 +172,9 @@ impl Exporter {
         row.push(unwrap_or_empty_then_to_string(log.mark));
         row.push(unwrap_or_empty_then_to_string(log.physin.clone()));
         row.push(unwrap_or_empty_then_to_string(log.phyout.clone()));
+        row.push(unwrap_or_empty_then_to_string(
+            log.original_datagram.clone(),
+        ));
         row.push(log.get_origin().to_string());
 
         row
