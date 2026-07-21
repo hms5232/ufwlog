@@ -30,7 +30,7 @@ jobs:
       command: ${{ matrix.platform.command }}
       bin: ${{ matrix.platform.bin }}
       target: ${{ matrix.platform.target }}
-      args: "--locked --release"
+      args: "--locked --release -p ufwlog-cli"
       strip: true
 
   upload:

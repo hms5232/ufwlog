@@ -31,5 +31,5 @@ jobs:
       command: ${{ matrix.platform.command }}
       bin: ${{ matrix.platform.bin }}
       target: ${{ matrix.platform.target }}
-      args: "--locked"
+      args: "--locked -p ufwlog-cli"
       strip: true
