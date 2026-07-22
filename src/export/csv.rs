@@ -140,8 +140,8 @@ impl Exporter {
         row.push(log.r#in.clone());
         row.push(log.out.clone());
         row.push(log.mac.clone());
-        row.push(log.src.clone());
-        row.push(log.dst.clone());
+        row.push(log.src.to_string());
+        row.push(log.dst.to_string());
         row.push(log.len.to_string());
         row.push(log.tos.clone().unwrap_or("".to_string()));
         row.push(log.prec.clone().unwrap_or("".to_string()));

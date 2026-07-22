@@ -16,7 +16,7 @@
 //! // the struct fields is from log
 //! assert_eq!(log.month, 1);
 //! assert_eq!(log.day, 16);
-//! assert_eq!(log.src, "127.0.0.1")
+//! assert_eq!(log.src.to_string(), "127.0.0.1")
 //! // and you can do some something else what you want with the struct
 //! ```
 //!
@@ -52,7 +52,7 @@
 //! log_iters
 //!     .filter_map(|log| log.ok())
 //!     .filter(|log| log.policy == UfwPolicy::Block) // filter blocked record
-//!     .filter(|log| log.src == "127.0.0.1") // filter source is local
+//!     .filter(|log| log.src.to_string() == "127.0.0.1") // filter source is local
 //!     .for_each(|log| println!("{}", log.dst)); // print destination
 //! # Ok::<(), ufwlog::error::Error>(())
 //! ```

@@ -2,6 +2,7 @@ use crate::error::Error;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::io;
+use std::net::IpAddr;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -44,9 +45,9 @@ pub struct UfwLog {
     /// Follows the order found in the Ethernet II header.
     pub mac: String,
     /// source IP
-    pub src: String,
+    pub src: IpAddr,
     /// destination IP
-    pub dst: String,
+    pub dst: IpAddr,
     /// length of packet
     pub len: u32,
     /// Type of Service.
@@ -251,8 +252,8 @@ impl UfwLog {
             r#in: "".to_string(),
             out: "".to_string(),
             mac: "".to_string(),
-            src: "".to_string(),
-            dst: "".to_string(),
+            src: "192.0.2.1".parse::<IpAddr>().unwrap(), // use RFC 5737 TEST-NET-1
+            dst: "192.0.2.2".parse::<IpAddr>().unwrap(), // use RFC 5737 TEST-NET-1
             len: 0,
             tos: None,
             prec: None,
@@ -352,8 +353,22 @@ impl UfwLog {
                 "in" => new.r#in = value,
                 "out" => new.out = value,
                 "mac" => new.mac = value,
-                "src" => new.src = value,
-                "dst" => new.dst = value,
+                "src" => {
+                    new.src = value
+                        .parse::<IpAddr>()
+                        .map_err(|_| ParseError::InvalidFormat {
+                            field: "src",
+                            description: format!("Invalid IP address: {}", value.as_str()),
+                        })?
+                }
+                "dst" => {
+                    new.dst = value
+                        .parse::<IpAddr>()
+                        .map_err(|_| ParseError::InvalidFormat {
+                            field: "dst",
+                            description: format!("Invalid IP address: {}", value.as_str()),
+                        })?
+                }
                 "len" => {
                     new.len = value
                         .parse::<u32>()
