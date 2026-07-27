@@ -9,7 +9,7 @@ A program to parse, format and export ufw log.
 ## Installation
 
 ```shell
-cargo install ufwlog
+cargo add ufwlog
 ```
 
 ## Usage
