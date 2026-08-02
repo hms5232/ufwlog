@@ -133,7 +133,7 @@ impl Exporter {
         // should push by "HEADER" order
         row.push(log.month.to_string());
         row.push(log.day.to_string());
-        row.push(log.time.clone());
+        row.push(log.time.to_string());
         row.push(log.hostname.clone());
         row.push(log.uptime.clone());
         row.push(log.policy.to_string());

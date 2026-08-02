@@ -1,4 +1,5 @@
 use crate::error::Error;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::io;
@@ -21,8 +22,8 @@ pub struct UfwLog {
     pub month: u8,
     /// day of log record, 1-31
     pub day: u8,
-    /// time of log record, format: "HH:MM:SS"
-    pub time: String,
+    /// time of log record
+    pub time: Time,
     /// The server's hostname
     pub hostname: String,
     /// The time in seconds since boot.
@@ -245,7 +246,11 @@ impl UfwLog {
         Self {
             month: 0,
             day: 0,
-            time: "".to_string(),
+            time: Time {
+                hour: 88,
+                minute: 88,
+                second: 88,
+            },
             hostname: "".to_string(),
             uptime: "".to_string(),
             policy: Policy::default(),
@@ -296,7 +301,7 @@ impl UfwLog {
     ///
     /// ```rust
     /// use std::collections::HashMap;
-    /// use ufwlog::UfwLog;
+    /// use ufwlog::{UfwLog, Time};
     ///
     /// let mut hashmap: HashMap<&str, String> = HashMap::new();
     /// hashmap.insert("month", String::from("Jan"));
@@ -308,7 +313,7 @@ impl UfwLog {
     /// assert_eq!(log.month, 1);
     /// assert_eq!(log.day, 1);
     /// // not given so default value
-    /// assert_eq!(log.time, "");
+    /// assert_eq!(log.time, Time { hour: 88, minute: 88, second: 88 });
     /// assert_eq!(log.get_origin(), "");
     /// ```
     ///
@@ -346,7 +351,47 @@ impl UfwLog {
                         value,
                     })?
                 }
-                "time" => new.time = value,
+                "time" => {
+                    if value.chars().filter(|c| *c == ':').count() == 2 {
+                        let (hour, min_sec) = value.split_once(":").unwrap();
+                        let (minute, second) = min_sec.split_once(":").unwrap();
+                        let parse_time = |f: &str, value: &str| -> Result<u8, ParseError> {
+                            let parsed =
+                                value.parse::<u8>().map_err(|_| ParseError::InvalidNumber {
+                                    field: "time",
+                                    value: value.to_string(),
+                                })?;
+                            if f == "hour" {
+                                return if parsed > 23 {
+                                    Err(ParseError::InvalidNumber {
+                                        field: "time",
+                                        value: value.to_string(),
+                                    })
+                                } else {
+                                    Ok(parsed)
+                                };
+                            }
+                            // minute and second
+                            if parsed > 60 {
+                                return Err(ParseError::InvalidNumber {
+                                    field: "time",
+                                    value: value.to_string(),
+                                });
+                            }
+                            Ok(parsed)
+                        };
+                        new.time = Time {
+                            hour: parse_time("hour", hour)?,
+                            minute: parse_time("minute", minute)?,
+                            second: parse_time("second", second)?,
+                        };
+                        continue;
+                    }
+                    return Err(Error::from(ParseError::InvalidFormat {
+                        field: "time",
+                        description: "Format of time is invalid, should be HH:MM:SS".into(),
+                    }));
+                }
                 "hostname" => new.hostname = value,
                 "uptime" => new.uptime = value,
                 "policy" => new.policy = Policy::from(value),
@@ -715,6 +760,61 @@ fn get_month_number(string: String) -> u8 {
     match MONTH.iter().position(|&r| r == string.trim()) {
         Some(pos) => (pos as u8) + 1,
         None => 0,
+    }
+}
+
+/// Simple time struct, contains 3 fields: `hour`, `minute` and `second`
+#[derive(Debug, Clone, Copy)]
+pub struct Time {
+    /// 24-hour clock, 00-24
+    pub hour: u8,
+    /// 00-59
+    pub minute: u8,
+    /// 00-59
+    pub second: u8,
+}
+
+impl Display for Time {
+    /// Display time in format `HH:MM:SS`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let time = ufwlog::Time { hour: 22, minute: 30, second: 07 };
+    /// assert_eq!(time.to_string(), "22:30:07");
+    /// ```
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:02}:{:02}:{:02}", self.hour, self.minute, self.second)
+    }
+}
+
+impl PartialEq for Time {
+    /// Simply compare fields of two Time.
+    fn eq(&self, other: &Self) -> bool {
+        self.hour == other.hour && self.minute == other.minute && self.second == other.second
+    }
+}
+
+impl PartialOrd for Time {
+    /// Simply compare fields of two Time.
+    ///
+    /// This only valid for time in same day.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let morning = ufwlog::Time { hour: 07, minute: 30, second: 00 };
+    /// let night = ufwlog::Time { hour: 22, minute: 00, second: 00 };
+    /// assert!(morning < night);
+    ///
+    /// let same = ufwlog::Time { hour: 7, minute: 30, second: 0 };
+    /// assert!(morning == same);
+    ///
+    /// let later = ufwlog::Time { hour: 7, minute: 30, second: 30 };
+    /// assert!(morning < later);
+    /// ```
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some((self.hour, self.minute, self.second).cmp(&(other.hour, other.minute, other.second)))
     }
 }
 

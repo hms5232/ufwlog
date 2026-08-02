@@ -63,4 +63,5 @@ mod parser;
 mod ufw_log;
 
 pub use ufw_log::Policy as UfwPolicy;
+pub use ufw_log::Time;
 pub use ufw_log::UfwLog;
