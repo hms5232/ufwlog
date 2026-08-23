@@ -681,13 +681,18 @@ impl FromStr for UfwLog {
 
 /// The ufw policy list.
 ///
+/// These policies are found from [ufw source code and test](https://launchpad.net/ufw). They may be added, removed or modified in the future depending on the ufw.
+///
 /// Community may call it "action" or "event", but we use "policy", as variable named in [source code](https://launchpad.net/ufw).
 #[derive(Debug, Default, PartialEq)]
+#[non_exhaustive]
 pub enum Policy {
     /// Unknown policy.
     ///
     /// If you see `Unknown` in the output, it means the policy is not recognized.
     /// Please report to [GitHub](https://github.com/hms5232/ufwlog/issues).
+    ///
+    /// You can treat it as `_` in match arm.
     #[default]
     Unknown,
     /// Packet is matched by a deny/reject rule.
